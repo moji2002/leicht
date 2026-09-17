@@ -3,9 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>leicht — a tiny CSS library in bleeding-edge CSS</title>
+  <title>leicht — a tiny classless CSS framework in modern CSS</title>
   <meta name="description" content="A tiny classless-first CSS library in modern CSS: cascade layers, light-dark(), squircles, glass and liquid refraction. 5.6 kb, no build step.">
   <link rel="canonical" href="https://moji2002.github.io/leicht/">
+  <meta name="author" content="Mojtaba Beheshti">
+  <meta name="theme-color" content="#f9fafd" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://moji2002.github.io/leicht/">
   <meta property="og:title" content="leicht — a tiny classless-first CSS library">
@@ -98,6 +101,21 @@
     }
     [data-demo] .row > div:not(.card, .stack) { padding: .5rem; border-radius: calc(var(--l-radius) * .6); background: color-mix(in oklab, var(--l-primary) 14%, #0000); text-align: center }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "leicht",
+    "description": "A tiny classless-first CSS library in modern CSS: cascade layers, light-dark(), squircles, glass and liquid refraction.",
+    "url": "https://moji2002.github.io/leicht/",
+    "codeRepository": "https://github.com/moji2002/leicht",
+    "programmingLanguage": "CSS",
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Person", "name": "Mojtaba Beheshti" },
+    "keywords": "classless css, css framework, modern css, cascade layers, light-dark, oklch, liquid glass, squircle, dark mode, rtl",
+    "image": "https://moji2002.github.io/leicht/logo/og.png"
+  }
+  </script>
 </head>
 <body>
   <a href="#main">Skip to content</a>
@@ -121,6 +139,7 @@
       <ul>
         <li><a href="#features">features</a></li>
         <li><a href="#start">start</a></li>
+        <li><a href="https://github.com/moji2002/leicht">github</a></li>
         <li><button class="ghost" type="button" commandfor="docs-menu" command="toggle-popover">docs <svg aria-hidden="true"><use href="#i-down"/></svg></button></li>
         <li><button class="secondary" type="button" commandfor="skin-menu" command="toggle-popover" aria-label="Choose a skin" interestfor="skin-tip"><svg aria-hidden="true"><use href="#i-palette"/></svg></button></li>
         <li><button class="secondary" id="theme" type="button" interestfor="theme-tip" aria-label="Toggle theme"><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg></button></li>
@@ -188,7 +207,12 @@
       <h2>Getting started</h2>
       <p>Link the stylesheet. That's it.</p>
       <pre><code>&lt;link rel="stylesheet" href="leicht.min.css"&gt;</code></pre>
-      <p>Or build it from source (<code>npm run build</code>) and take <code>dist/leicht.min.css</code>. A boilerplate page:</p>
+      <p>Or install it:</p>
+      <pre><code>npm i leicht</code></pre>
+      <p>…and link <code>node_modules/leicht/dist/leicht.min.css</code>, or import it:</p>
+      <pre><code>@import "leicht/min";
+@import "leicht/themes/min";   /* optional skins */</code></pre>
+      <p>A boilerplate page:</p>
       <pre><code>&lt;!doctype html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
@@ -562,7 +586,7 @@
   </main>
 
   <footer class="text-center">
-    <p><a href="#">Back to top</a> · MIT licensed</p>
+    <p><a href="https://github.com/moji2002/leicht">GitHub</a> · <a href="https://www.npmjs.com/package/leicht">npm</a> · <a href="#">Back to top</a> · MIT licensed</p>
   </footer>
 
   <script>

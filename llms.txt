@@ -1,0 +1,37 @@
+# leicht
+
+> A tiny classless-first CSS library in modern CSS. Link one stylesheet, write ordinary HTML,
+> and the page is styled. 5.6 kB gzipped, no build step, no dependencies, no !important.
+
+Install: `npm i leicht` — or link `dist/leicht.min.css` directly.
+Optional skins: `dist/leicht-themes.min.css` (1.6 kB, six looks via `data-skin`).
+
+## How it works
+
+- Semantic HTML is styled with no classes: headings, tables, forms, `<nav>`, `<article>` as a
+  card, `<dialog>` as a modal, `[popover]` menus, `popover="hint"` tooltips, `<progress>`,
+  `<meter>`, and `role="switch"` checkboxes.
+- A small set of classes covers what HTML has no element for: `.row`/`.col-N`, `.card`,
+  `.button` + variants, `.alert`, `.group`, `.tag`, `.carousel`, `.glass`, `.liquid`, utilities.
+- Everything ships inside `@layer leicht.base, leicht.components, leicht.utilities`, so unlayered
+  author CSS always wins — overriding never needs `!important`.
+- All styling is tokens (`--l-*`). `--l-primary` takes a brand colour; `--l-hue` re-tints
+  neutrals and accent together. The palette is OKLCH with fixed lightness, so a hue change cannot
+  break contrast.
+- Dark mode is `light-dark()` plus `color-scheme` — no JavaScript. `data-theme` forces it;
+  `data-skin` selects a skin; the two compose.
+
+## Bleeding-edge CSS, used as progressive enhancement
+
+corner-shape, border-shape, background-clip: border-area, anchor positioning with
+position-try-fallbacks, anchored container queries, appearance: base-select with ::picker(select),
+scroll-driven animations, @container scroll-state, ::scroll-marker, ::details-content,
+@starting-style, sibling-index(), typed attr(), contrast-color(), text-box, CSS Custom Highlight
+API, and liquid-glass refraction from a data-URI SVG filter. Each degrades to the plain look.
+
+## Links
+
+- Docs and live demos: https://moji2002.github.io/leicht/
+- Source: https://github.com/moji2002/leicht
+- Package: https://www.npmjs.com/package/leicht
+- Research notes (browser support, measured findings): https://github.com/moji2002/leicht/blob/main/docs/modern-css-research.md

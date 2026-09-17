@@ -28,7 +28,7 @@ jobs:
       - run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html skins.html _site/
+          cp index.html skins.html robots.txt sitemap.xml llms.txt _site/
           cp -R dist logo _site/
       - uses: actions/upload-pages-artifact@v5
         with:

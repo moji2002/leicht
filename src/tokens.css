@@ -1,0 +1,50 @@
+@layer leicht.base {
+  :root {
+    color-scheme: light dark;
+    --l-font: Geist, "Inter Variable", Inter, system-ui, sans-serif;
+    --l-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+    --l-width: 72rem;
+    --l-space: 1rem;
+    --l-radius: .5rem;
+    --l-hue: 257;
+
+    /* near-neutral zinc greys with a whisper of the hue; near-black dark mode */
+    --l-bg: light-dark(oklch(99.2% .002 var(--l-hue)), oklch(14.5% .006 var(--l-hue)));
+    --l-fg: light-dark(oklch(21% .012 var(--l-hue)), oklch(96.5% .004 var(--l-hue)));
+    /* macOS system blue, darkened just enough for AA text; lighter in the dark */
+    --l-primary: light-dark(oklch(55% .2 var(--l-hue)), oklch(72% .15 var(--l-hue)));
+    /* same lightness as primary, so --l-on-primary stays legible on each */
+    --l-error: light-dark(oklch(56% .2 29), oklch(72% .16 29));
+    --l-success: light-dark(oklch(52% .14 148), oklch(76% .17 148));
+
+    --l-on-primary: var(--l-bg);
+    --l-surface: color-mix(in oklab, var(--l-fg) 4%, var(--l-bg));
+    --l-muted: color-mix(in oklab, var(--l-fg) 64%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-fg) 12%, #0000);
+    --l-shadow: 0 6px 20px -10px #0003;
+
+    /* macOS-style vibrancy: translucent fill, lit top edge, faint rim */
+    --l-glass: color-mix(in oklab, var(--l-bg) 62%, #0000);
+    --l-glass-edge: inset 0 1px light-dark(#fffd, #fff4), inset 0 0 0 1px light-dark(#fff8, #fff1);
+    --l-blur: blur(20px) saturate(1.8);
+    --l-corner: squircle;
+    /* liquid glass. The refraction layer carries its SVG filter in a data URI, so it ships
+       inside this stylesheet. Swap --l-refract for any filter url() — docs/ has an edge-lens
+       variant that bends only near the rim instead of rippling the whole surface. */
+    --l-liquid-tint: 22%;
+    --l-liquid-blur: 0px;
+    --l-liquid-sat: 1.6;
+    --l-liquid-edge: light-dark(#fffb, #fff6);
+    --l-refract: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter%20id=%22l%22%20x=%220%25%22%20y=%220%25%22%20width=%22100%25%22%20height=%22100%25%22%3E%3CfeTurbulence%20type=%22fractalNoise%22%20baseFrequency=%220.008%200.008%22%20numOctaves=%222%22%20seed=%2292%22%20result=%22n%22/%3E%3CfeGaussianBlur%20in=%22n%22%20stdDeviation=%222%22%20result=%22b%22/%3E%3CfeDisplacementMap%20in=%22SourceGraphic%22%20in2=%22b%22%20scale=%2270%22%20xChannelSelector=%22R%22%20yChannelSelector=%22G%22/%3E%3C/filter%3E%3C/svg%3E#l");
+    /* syntax colours for ::highlight(l-*) — bring any tokenizer that fills CSS.highlights */
+    --l-syn-1: light-dark(oklch(50% .16 257), oklch(78% .12 240));
+    --l-syn-2: light-dark(oklch(50% .13 50), oklch(80% .11 60));
+    --l-syn-3: light-dark(oklch(47% .12 150), oklch(80% .12 150));
+    /* duocolor icons: give secondary strokes stroke: var(--l-duo) */
+    --l-duo: color-mix(in oklab, currentColor 40%, #0000);
+  }
+  /* a squircle reads tighter than a circle arc of the same radius */
+  @supports (corner-shape: squircle) { :root { --l-radius: .8rem } }
+  [data-theme=light] { color-scheme: light }
+  [data-theme=dark] { color-scheme: dark }
+}

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mark review</title>
+<style>
+  :root { --accent: #2ee0d2; }
+  body[data-theme="dark"] {
+    --bg: #05060a; --panel: #0b0f14; --ink: #f4f7fb;
+    --muted: #7c8b99; --line: #1b2530;
+  }
+  body[data-theme="light"] {
+    --bg: #f6f8fa; --panel: #ffffff; --ink: #0b0f14;
+    --muted: #5b6b7a; --line: #dde4ea;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 28px 72px;
+    background: var(--bg); color: var(--ink);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  /* Deliberately no transition on the theme flip. This page gets screenshotted
+     by automation, and an in-flight transition makes the capture hang waiting
+     for stability. Nothing here is worth that. */
+
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 16px; margin-bottom: 6px; }
+  h1 { font-size: 17px; font-weight: 650; letter-spacing: -.01em; margin: 0; }
+  .count { color: var(--muted); font-size: 13px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 28px; }
+  .controls button {
+    font: inherit; font-size: 13px; padding: 7px 13px; border-radius: 8px; cursor: pointer;
+    background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+  }
+  .controls button:hover { border-color: var(--accent); }
+  .controls button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px 18px 16px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .card:hover { border-color: color-mix(in oklab, var(--accent) 55%, var(--line)); }
+
+  /* `color` here is what currentColor resolves to. It flips with the theme --
+     which is the entire point of the light/dark toggle: any structural element
+     hardcoded to a light hex will vanish on the light theme. */
+  .mark svg, .scale svg { color: var(--ink); display: block; }
+  .mark { display: grid; place-items: center; min-height: 116px; }
+  .mark svg { width: 108px; height: 108px; }
+
+  .scale { display: flex; align-items: flex-end; gap: 16px; padding-top: 2px; }
+  .scale figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .scale figcaption { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .s64 { width: 64px; height: 64px; }
+  .s32 { width: 32px; height: 32px; }
+  .s16 { width: 16px; height: 16px; }
+
+  .caption { border-top: 1px solid var(--line); padding-top: 12px; }
+  .name { font-weight: 600; letter-spacing: -.01em; }
+  .tag { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; margin-top: 3px; }
+  .note { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
+
+  /* Reduction test: does the silhouette survive when detail is destroyed? */
+  .grid.squint .mark svg, .grid.squint .scale svg { filter: blur(1.7px); }
+  /* Concept test: read the grid cold, with nothing telling you what to see. */
+  .grid.nocaps .caption { visibility: hidden; }
+</style>
+</head>
+<body data-theme="dark">
+
+<header>
+  <h1>Mark review</h1>
+  <span class="count" id="count"></span>
+</header>
+
+<div class="controls">
+  <button id="theme" aria-pressed="false">Light background</button>
+  <button id="squint" aria-pressed="false">Squint</button>
+  <button id="nocaps" aria-pressed="false">Hide captions</button>
+</div>
+
+<svg id="sprite" width="0" height="0" aria-hidden="true" style="position:absolute"></svg>
+<div class="grid" id="grid"></div>
+
+<script>
+// ---------------------------------------------------------------------------
+// EDIT BELOW. Each entry is one mark.
+//   body — inner SVG markup on a 0 0 64 64 viewBox.
+//
+// Use currentColor for anything structural (the lit node, the accent arm, the
+// element that completes the idea). Hardcode only the brand accent, which is
+// picked to hold on both backgrounds. Flip the theme toggle to check.
+//
+// For a deep round of 15-20 variations, don't hand-write them: define a config
+// array and map it into this shape. One global change then edits one function.
+// ---------------------------------------------------------------------------
+const ACCENT = '#0a7cff';
+
+const MARKS = [
+  { name: 'App', note: 'App-icon squircle, ink l reversed out. The macOS tile the library already draws.',
+    body: `<path d="M32 3 C53 3 61 11 61 32 C61 53 53 61 32 61 C11 61 3 53 3 32 C3 11 11 3 32 3Z" fill="${ACCENT}"/>
+      <path d="M26 16 V38 Q26 46 34 46 H39" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>` },
+  { name: 'Lens', note: 'A glass disc with a specular sweep: the material itself.',
+    body: `<circle cx="32" cy="32" r="27" fill="${ACCENT}" opacity=".85"/>
+      <path d="M14 45 C10 30 22 13 41 10" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>` },
+  { name: 'Slash', note: 'A forward lean: light and fast. Reads as / — the CSS shorthand separator.',
+    body: `<g stroke-width="7" stroke-linecap="round">
+      <path d="M40 10 L20 54" stroke="currentColor"/>
+      <path d="M52 22 L44 54" stroke="${ACCENT}"/></g>` },
+  { name: 'Lines', note: 'Three lines getting shorter: text, already set. The top line is the accent.',
+    body: `<g stroke-width="7" stroke-linecap="round">
+      <path d="M10 18 H54" stroke="${ACCENT}"/>
+      <path d="M10 32 H44" stroke="currentColor"/>
+      <path d="M10 46 H30" stroke="currentColor" opacity=".5"/></g>` },
+  { name: 'Plane', note: 'A paper plane: the lightest thing that still flies.',
+    body: `<path d="M56 10 L8 30 L28 36 L34 56 Z" fill="${ACCENT}"/>
+      <path d="M56 10 L28 36" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>` },
+  { name: 'Chip', note: 'A squircle with a corner lifted — the tile, and a page turning.',
+    body: `<path d="M32 3 C53 3 61 11 61 32 C61 44 58 52 52 56 L8 12 C12 6 20 3 32 3Z" fill="${ACCENT}"/>
+      <path d="M52 56 C48 59 41 61 32 61 C11 61 3 53 3 32 C3 23 5 16 8 12Z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>` },
+  { name: 'Caret', note: 'A single chevron pointing up: lighter, rising. One stroke, nothing else.',
+    body: `<path d="M12 42 L32 20 L52 42" fill="none" stroke="${ACCENT}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>` },
+  { name: 'Stack', note: 'Three squircle tiles offset: cascade layers, seen from the side.',
+    body: `<g stroke-width="5" stroke-linejoin="round" fill="none">
+      <rect x="8" y="8" width="38" height="38" rx="13" stroke="${ACCENT}"/>
+      <rect x="18" y="18" width="38" height="38" rx="13" fill="var(--bg, #0b0d10)" stroke="currentColor"/></g>` },
+  { name: 'Weightless', note: 'A tile that has let go of its baseline; the bar is the ground it left.',
+    body: `<rect x="16" y="6" width="32" height="32" rx="11" fill="none" stroke="currentColor" stroke-width="5"/>
+      <path d="M12 52 H52" stroke="${ACCENT}" stroke-width="6" stroke-linecap="round"/>` },
+];
+
+// ---------------------------------------------------------------------------
+// Harness. No need to edit past this line.
+// ---------------------------------------------------------------------------
+const uid = (i) => 'mk' + i;
+
+document.getElementById('sprite').innerHTML = MARKS.map((m, i) =>
+  `<symbol id="${uid(i)}" viewBox="0 0 64 64">${m.body}</symbol>`
+).join('');
+
+const use = (i, cls) =>
+  `<svg class="${cls}" viewBox="0 0 64 64" fill="none" aria-hidden="true"><use href="#${uid(i)}"/></svg>`;
+
+document.getElementById('grid').innerHTML = MARKS.map((m, i) => `
+  <div class="card">
+    <div class="mark">${use(i, 'big')}</div>
+    <div class="scale">
+      <figure>${use(i, 's64')}<figcaption>64</figcaption></figure>
+      <figure>${use(i, 's32')}<figcaption>32</figcaption></figure>
+      <figure>${use(i, 's16')}<figcaption>16</figcaption></figure>
+    </div>
+    <div class="caption">
+      <div class="name">${m.name}</div>
+      ${m.tag ? `<div class="tag">${m.tag}</div>` : ''}
+      ${m.note ? `<div class="note">${m.note}</div>` : ''}
+    </div>
+  </div>`).join('');
+
+document.getElementById('count').textContent =
+  MARKS.length + (MARKS.length === 1 ? ' mark' : ' marks');
+
+const toggle = (id, fn) => {
+  const b = document.getElementById(id);
+  b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', String(on));
+    fn(on, b);
+  });
+};
+
+toggle('theme', (on, b) => {
+  document.body.dataset.theme = on ? 'light' : 'dark';
+  b.textContent = on ? 'Dark background' : 'Light background';
+});
+toggle('squint', (on) => document.getElementById('grid').classList.toggle('squint', on));
+toggle('nocaps', (on) => document.getElementById('grid').classList.toggle('nocaps', on));
+</script>
+</body>
+</html>

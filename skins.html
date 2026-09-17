@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>leicht — skins</title>
+  <link rel="stylesheet" href="dist/leicht.css">
+  <link rel="stylesheet" href="dist/leicht-themes.css">
+  <style>
+    body { padding: 1.5rem }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 1.25rem }
+    .skin {
+      padding: 1.25rem 1.5rem 1.5rem;
+      border: 1px solid var(--l-border);
+      border-radius: var(--l-radius);
+      corner-shape: var(--l-corner);
+      background: var(--l-bg);
+      color: var(--l-fg);
+      font-family: var(--l-font);
+    }
+    .skin > h3 { margin-block: 0 .75rem }
+    .skin .name { float: inline-end; color: var(--l-muted); font-size: .8rem; font-weight: 400 }
+  </style>
+</head>
+<body>
+  <h1>leicht skins</h1>
+  <p class="text-muted">Identical markup in each panel — only <code>data-skin</code> changes.</p>
+  <div class="grid">
+    <div class="skin"><h3>Default <span class="name">no data-skin</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-default">Email</label><input id="f-default" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+    <div class="skin" data-skin="cyber"><h3>Cyber <span class="name">data-skin="cyber"</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-cyber">Email</label><input id="f-cyber" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+    <div class="skin" data-skin="terminal"><h3>Terminal <span class="name">data-skin="terminal"</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-terminal">Email</label><input id="f-terminal" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+    <div class="skin" data-skin="brutal"><h3>Brutal <span class="name">data-skin="brutal"</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-brutal">Email</label><input id="f-brutal" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+    <div class="skin" data-skin="nord"><h3>Nord <span class="name">data-skin="nord"</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-nord">Email</label><input id="f-nord" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+    <div class="skin" data-skin="mono"><h3>Mono <span class="name">data-skin="mono"</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-mono">Email</label><input id="f-mono" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+    <div class="skin" data-skin="sunset"><h3>Sunset <span class="name">data-skin="sunset"</span></h3>
+      <article><header><h4>Ticket #204</h4></header>
+        <p>Same markup, different tokens. <span class="tag">open</span></p>
+        <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer></article>
+      <label for="f-sunset">Email</label><input id="f-sunset" placeholder="ada@example.com">
+      <p class="flex"><button class="outline">Outline</button><button class="error">Delete</button></p>
+    </div>
+  </div>
+</body>
+</html>

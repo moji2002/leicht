@@ -1,0 +1,66 @@
+/* No :where() needed: the layer, not specificity, decides against your CSS. */
+@layer leicht.base {
+  *, ::before, ::after { box-sizing: border-box }
+  html { -webkit-text-size-adjust: none; text-size-adjust: none; scrollbar-gutter: stable }
+  body { margin: 0; min-block-size: 100dvh; background: var(--l-bg); color: var(--l-fg); font: 1rem/1.6 var(--l-font) }
+
+  body > :is(header, main, footer), .container {
+    max-inline-size: var(--l-width);
+    margin-inline: auto;
+    padding: var(--l-space) clamp(1rem, 4vw, 2rem);
+  }
+  body > main, .container { container-type: inline-size }
+  :is(body > main, article, .card, dialog, [popover]) > :first-child { margin-block-start: 0 }
+  :is(article, .card, dialog, [popover], header) > :last-child { margin-block-end: 0 }
+
+  h1, h2, h3, h4, h5, h6 { margin-block: 1.6em .5em; line-height: 1.2; text-wrap: balance }
+  h1 { font-size: 2.25rem }
+  h2 { font-size: 1.75rem }
+  h3 { font-size: 1.375rem }
+  h4 { font-size: 1.125rem }
+  p, ul, ol, dl, pre, blockquote, table, figure, details, fieldset { margin: 0; margin-block-end: var(--l-space) }
+  p, li { text-wrap: pretty }
+  small, figcaption, thead, body > footer { color: var(--l-muted) }
+  figcaption, thead, body > footer { font-size: .875rem }
+
+  a {
+    color: var(--l-primary);
+    text-underline-offset: .2em;
+    &:hover { text-decoration-thickness: 2px }
+  }
+  :focus-visible { outline: 2px solid var(--l-primary); outline-offset: 2px }
+
+  code, kbd, samp { unicode-bidi: isolate }
+  code, kbd, pre { font: .875em/1.6 var(--l-mono); font-variant-ligatures: none; border-radius: calc(var(--l-radius) * .6); background: var(--l-surface) }
+  code, kbd { padding: .1em .35em }
+  kbd { border: 1px solid var(--l-border); border-block-end-width: 2px }
+  pre {
+    overflow-x: auto;
+    /* code is LTR even in an RTL document; isolate keeps it from reordering the line around it */
+    direction: ltr;
+    padding: var(--l-space);
+    & code { padding: 0; font-size: 1em }
+  }
+  ::highlight(l-tag), ::highlight(l-at) { color: var(--l-syn-1) }
+  ::highlight(l-attr), ::highlight(l-prop) { color: var(--l-syn-2) }
+  ::highlight(l-string), ::highlight(l-num) { color: var(--l-syn-3) }
+  ::highlight(l-comment), ::highlight(l-punct) { color: var(--l-muted) }
+  blockquote { padding-inline-start: var(--l-space); border-inline-start: 3px solid var(--l-primary); color: var(--l-muted) }
+  hr { margin-block: calc(var(--l-space) * 2); border: 0; border-block-start: 1px solid var(--l-border) }
+  mark { padding-inline: .2em; border-radius: .2em; background: color-mix(in oklab, var(--l-primary) 25%, #0000); color: inherit }
+  img, video { max-inline-size: 100%; block-size: auto; vertical-align: middle }
+
+  table { inline-size: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums }
+  th, td { padding: .6em .75em; border-block-end: 1px solid var(--l-border); text-align: start }
+
+  details {
+    padding: .5em var(--l-space);
+    border: 1px solid var(--l-border);
+    border-radius: var(--l-radius);
+    interpolate-size: allow-keywords;
+    & > summary { cursor: pointer; font-weight: 600 }
+    &[open] > summary { margin-block-end: .5em }
+    &::details-content { block-size: 0; overflow: clip; transition: block-size .2s, content-visibility .2s allow-discrete }
+    &[open]::details-content { block-size: auto }
+  }
+}

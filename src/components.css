@@ -1,0 +1,174 @@
+@layer leicht.components {
+  /* variants only repoint variables; .error/.success also recolour .tag, .text-primary, links… */
+  .secondary { --_bg: var(--l-surface); --_fg: var(--l-fg); --_bd: var(--l-border) }
+  .outline { --_bg: #0000; --_fg: var(--l-primary); --_bd: currentColor }
+  .ghost { --_bg: #0000; --_fg: var(--l-primary) }
+  .error { --l-primary: var(--l-error) }
+  .success { --l-primary: var(--l-success) }
+
+  /* grid: equal columns by default, 12 tracks once any .col-N appears */
+  .row {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: var(--l-space);
+    margin-block-end: var(--l-space);
+    & > * { margin: 0 }
+    &:has(> [class*=col-]) { grid-auto-flow: row; grid-template-columns: repeat(12, minmax(0, 1fr)) }
+    & > [class*=col-] { grid-column: span var(--span, 12) }
+  }
+  /* gap decorations: rules drawn in the gutters (Chrome 149+), ignored elsewhere */
+  .row.divided { column-rule: 1px solid var(--l-border); row-rule: 1px solid var(--l-border) }
+
+  .col-1 { --span: 1 } .col-2 { --span: 2 } .col-3 { --span: 3 } .col-4 { --span: 4 }
+  .col-5 { --span: 5 } .col-6 { --span: 6 } .col-7 { --span: 7 } .col-8 { --span: 8 }
+  .col-9 { --span: 9 } .col-10 { --span: 10 } .col-11 { --span: 11 } .col-12 { --span: 12 }
+
+  /* In a narrow container twelve tracks are unreadable, so small spans pair up two-per-row and
+     anything half-width or wider goes full width. Change the two --span values to re-tune it.
+     This is a container query, so a row inside a sidebar stacks even on a wide screen. */
+  @container (width < 40rem) {
+    .row > :is([class*=col-], [data-span]) { --span: 12 }
+    .row > :is(.col-1, .col-2, .col-3, .col-4, .col-5) { --span: 6 }
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem var(--l-space);
+    & ul { display: flex; flex-wrap: wrap; align-items: center; gap: inherit; margin: 0; padding: 0; list-style: none }
+    & a:not(.button) {
+      color: inherit;
+      text-decoration: none;
+      &:is(:hover, [aria-current]) { color: var(--l-primary) }
+    }
+  }
+
+  article, .card {
+    --_p: 1.25rem;
+    margin-block-end: var(--l-space);
+    padding: var(--_p);
+    border: 1px solid var(--l-border);
+    border-radius: calc(var(--l-radius) * 1.5);
+    background: var(--l-surface);
+    & > :is(header, footer) { margin-inline: calc(-1 * var(--_p)); padding: .75rem var(--_p) }
+    & > header { margin-block: calc(-1 * var(--_p)) var(--_p); border-block-end: 1px solid var(--l-border) }
+    & > footer { margin-block: var(--_p) calc(-1 * var(--_p)); border-block-start: 1px solid var(--l-border) }
+  }
+
+  /* ---- glass: the page header floats as a toolbar; overlays and .glass share the material ---- */
+  body > header {
+    inline-size: min(var(--l-width), 100% - 1rem);
+    position: sticky;
+    inset-block-start: .5rem;
+    z-index: 1;
+    margin-block: .5rem;
+    padding-block: .5rem;
+    border-radius: calc(var(--l-radius) * 1.5);
+  }
+  :is(body > header, dialog, [popover], .glass) {
+    border: 0;
+    background: var(--l-glass);
+    backdrop-filter: var(--l-blur);
+    box-shadow: var(--l-glass-edge), var(--l-shadow);
+  }
+
+  /* a scroll-snap list with dots, from plain markup. ::scroll-marker is Chromium-only for now;
+     elsewhere it stays an ordinary horizontal scroller. */
+  .carousel {
+    display: flex;
+    gap: var(--l-space);
+    margin-inline: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-marker-group: after;
+    scrollbar-width: none;
+    & > * { flex: 0 0 min(100%, 24rem); scroll-snap-align: center; margin: 0 }
+    &::scroll-marker-group { display: flex; justify-content: center; gap: .5rem; padding-block-start: .9rem }
+    & > *::scroll-marker {
+      content: "";
+      inline-size: .55rem;
+      block-size: .55rem;
+      border-radius: 50%;
+      background: var(--l-border);
+      transition: background .2s, scale .2s;
+    }
+    & > *::scroll-marker:target-current { background: var(--l-primary); scale: 1.25 }
+  }
+
+  /* dialog and popover share one enter/exit transition */
+  dialog, [popover] {
+    padding: 1.5rem;
+    border-radius: calc(var(--l-radius) * 2);
+    color: var(--l-fg);
+    opacity: 0;
+    scale: .96;
+    transition: .2s allow-discrete;
+    transition-property: opacity, scale, display, overlay;
+    &:is([open], :popover-open) {
+      opacity: 1;
+      scale: 1;
+      @starting-style { opacity: 0; scale: .96 }
+    }
+    & footer { display: flex; justify-content: end; gap: .5rem }
+  }
+  dialog {
+    inline-size: min(32rem, 100% - 2rem);
+    &::backdrop { background: #0004; backdrop-filter: blur(3px) }
+  }
+
+  /* popover menu, anchored to its invoker; unsupported browsers centre it */
+  [popover] {
+    min-inline-size: 12rem;
+    padding: .35rem;
+    transform-origin: 0 0;
+    &:dir(rtl) { transform-origin: 100% 0 }
+    border-radius: calc(var(--l-radius) * 1.5);
+    & :is(ul, menu) { margin: 0; padding: 0; list-style: none }
+    & :is(a, button) {
+      --_bg: #0000;
+      --_fg: var(--l-fg);
+      display: flex;
+      align-items: center;
+      gap: .6em;
+      inline-size: 100%;
+      justify-content: start;
+      padding: .4em .6em;
+      border-radius: var(--l-radius);
+      background: var(--_bg);
+      color: var(--_fg);
+      box-shadow: none;
+      text-decoration: none;
+      & svg { inline-size: 1.1em; block-size: 1.1em; opacity: .7 }
+      &:hover { --_bg: var(--l-primary); --_fg: var(--l-on-primary); filter: none }
+    }
+    /* not scoped to :popover-open: the closing frame must stay anchored */
+    @supports (position-area: block-end) {
+      inset: auto;
+      margin: .35rem 0 0;
+      position-anchor: auto;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks: flip-block, flip-inline;
+    }
+  }
+
+  /* tag: a pill, or a luggage-label shape where border-shape exists */
+  .tag {
+    display: inline-block;
+    padding: .1em .6em;
+    border: 1px solid color-mix(in oklab, var(--l-primary) 35%, #0000);
+    border-radius: 99em;
+    background: color-mix(in oklab, var(--l-primary) 14%, #0000);
+    color: var(--l-primary);
+    font-size: .8em;
+    font-weight: 600;
+    @supports (border-shape: polygon(round 1px, 0 0, 1px 0, 0 1px)) {
+      padding-inline: .9em .6em;
+      border-shape: polygon(round 3px, .55em 0, 100% 0, 100% 100%, .55em 100%, 0 50%);
+    }
+  }
+}

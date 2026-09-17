@@ -1,0 +1,74 @@
+/* Quiet polish: things nobody notices until they are missing.
+   In the utilities layer so the accessibility overrides beat every component rule. */
+@layer leicht.utilities {
+  ::selection { background: color-mix(in oklab, var(--l-primary) 30%, #0000) }
+
+  /* deep links land below the sticky toolbar */
+  :target { scroll-margin-block-start: 5rem }
+
+  /* a skip link with no class: the first link in <body>, visible only on focus */
+  body > a[href^="#"]:first-child:not(:focus) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  body > a[href^="#"]:first-child:focus {
+    position: fixed;
+    inset: .75rem auto auto .75rem;
+    z-index: 99;
+    padding: .5em 1em;
+    border-radius: var(--l-radius);
+    background: var(--l-primary);
+    color: var(--l-on-primary);
+    text-decoration: none;
+  }
+
+  /* a hint next to a field turns into an error once the user has actually touched it */
+  :is(input, select, textarea):user-invalid + small {
+    color: var(--l-error);
+    &::before { content: "⚠ " }
+  }
+
+  /* photos glare in dark mode; SVG and icons are left alone */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme=light]) :is(img, video):not([src$=".svg"]) { filter: brightness(.92) contrast(1.02) }
+  }
+  :root[data-theme=dark] :is(img, video):not([src$=".svg"]) { filter: brightness(.92) contrast(1.02) }
+
+  /* an empty list or table body says so, instead of collapsing to nothing */
+  :is(tbody, ul, ol, .stack)[data-empty]:empty::after {
+    content: attr(data-empty);
+    color: var(--l-muted);
+    font-style: italic;
+  }
+
+  /* Windows High Contrast: drop the glass, keep real borders */
+  @media (forced-colors: active) {
+    .glass, .liquid, body > header, dialog, [popover] {
+      backdrop-filter: none;
+      background: Canvas;
+      border: 1px solid CanvasText;
+    }
+    button, [type=submit], [type=button], [type=reset], .button { border: 1px solid ButtonText }
+  }
+
+  @media print {
+    :root { --l-bg: #fff; --l-fg: #000; --l-glass: #fff; --l-blur: none; color-scheme: light }
+    body > :is(header, footer), nav, dialog, [popover], .button, button { display: none }
+    body > main, .container { max-inline-size: none; padding: 0 }
+    :is(article, .card, pre, blockquote, table, figure, details) {
+      break-inside: avoid;
+      border: 1px solid #999;
+      background: none;
+      box-shadow: none;
+    }
+    :is(h1, h2, h3, h4) { break-after: avoid }
+    details { display: block }
+    details::details-content { block-size: auto; content-visibility: visible }
+    /* a printed link is useless without its destination */
+    main a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .8em; word-break: break-all }
+    @page { margin: 18mm }
+  }
+}

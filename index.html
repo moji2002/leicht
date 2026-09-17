@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>leicht — a tiny CSS library in bleeding-edge CSS</title>
+  <meta name="description" content="A ~5.2 KB classless-first CSS library written in modern CSS: nesting, cascade layers, light-dark(), squircles, glass.">
+  <link rel="icon" href="logo/leicht-mark.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@400..600&display=swap">
+  <link rel="stylesheet" href="dist/leicht.css">
+  <link rel="stylesheet" href="dist/leicht-themes.css">
+  <style>
+    /* page-only styles */
+    /* the page wash follows whichever skin is on, instead of a hard-coded blue */
+    body {
+      background:
+        radial-gradient(40rem 30rem at 10% 0%, color-mix(in oklab, var(--l-primary) 12%, #0000), #0000 70%),
+        radial-gradient(35rem 30rem at 95% 10%, color-mix(in oklab, var(--l-primary) 9%, #0000), #0000 70%),
+        var(--l-bg);
+    }
+    /* terminal wants a flat ground, not the accent wash */
+    :root[data-skin=terminal] body { background: var(--l-bg) }
+    .hero { padding-block: 4rem 2rem }
+    @container (width < 40rem) { .hero { padding-block: 1rem } }
+    .hero h1 { font-size: clamp(2.25rem, 7vw, 3.75rem); letter-spacing: -.03em }
+    .hero h1 em { font-style: normal; color: var(--l-primary) }
+    .hero p { max-inline-size: 36rem; margin-inline: auto; font-size: 1.125rem }
+    .logo { display: flex; align-items: center; gap: .5rem; font-weight: 800; letter-spacing: -.02em; text-decoration: none; color: inherit }
+    .logo-mark { inline-size: 1.6em; block-size: 1.6em }
+    .liquid-demo { display: grid; grid-template-columns: 2fr 1fr; gap: var(--l-space); align-items: start }
+    @container (width < 44rem) { .liquid-demo { grid-template-columns: 1fr } }
+    .liquid-stage {
+      position: relative;
+      block-size: 22rem;
+      display: grid;
+      place-content: center;
+      gap: 1.5rem;
+      overflow: hidden;
+      border-radius: var(--l-radius);
+      corner-shape: var(--l-corner);
+      background: url("https://images.unsplash.com/photo-1551384963-cccb0b7ed94b?q=80&w=1600&auto=format&fit=crop") center/cover;
+      animation: lq-pan 14s ease-in-out infinite alternate;
+    }
+    @keyframes lq-pan { from { background-position: center center } to { background-position: center top } }
+    @media (prefers-reduced-motion: reduce) { .liquid-stage { animation: none } }
+    .liquid-dock, .liquid-pill { margin: 0; justify-self: center }
+    .liquid-dock { padding: .75rem 1rem; border-radius: 2rem }
+    .liquid-icons { display: flex; gap: 1.25rem }
+    .liquid-icons a { display: grid; place-items: center; color: #fff }
+    .liquid-icons svg { inline-size: 2.25rem; block-size: 2.25rem; transition: scale .3s cubic-bezier(.2,.7,.3,1) }
+    .liquid-icons a:hover svg { scale: 1.15 }
+    .liquid-pill {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem 1.25rem;
+      border-radius: 5rem;
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 0 1px 2px #0005;
+    }
+    .liquid-pill svg { inline-size: 1.2em; block-size: 1.2em }
+    .liquid-demo output { float: inline-end; color: var(--l-muted); font-weight: 400 }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .5rem 2rem; padding: 0; list-style: none }
+    .features li::before { content: "→ "; color: var(--l-primary); font-weight: 700 }
+    main > section { scroll-margin-top: 5rem; padding-block-start: 1rem }
+    [data-demo] { margin-block-end: 0; padding: 1.25rem; border: 1px solid var(--l-border); border-radius: var(--l-radius) var(--l-radius) 0 0; corner-shape: var(--l-corner) }
+    [data-demo] + pre { border: 1px solid var(--l-border); border-block-start: 0; border-radius: 0 0 var(--l-radius) var(--l-radius); max-block-size: 20rem }
+    [data-demo] + pre code { white-space: pre-wrap; overflow-wrap: anywhere }
+    /* glass needs something behind it to be visible at all */
+    .demo-tinted {
+      background: linear-gradient(#0000004d, #0000004d),
+        url("https://images.unsplash.com/photo-1551384963-cccb0b7ed94b?q=80&w=1600&auto=format&fit=crop") center/cover;
+    }
+    /* the panels sit on a photo, so thicken their tint until the skin's own text colour reads —
+       forcing white here broke every skin whose glass is opaque (brutal, terminal, mono) */
+    .demo-tinted .card { --l-glass: color-mix(in oklab, var(--l-bg) 84%, #0000); --l-liquid-tint: 72% }
+    .demo-tinted .card code { background: color-mix(in oklab, var(--l-fg) 12%, #0000) }
+    #theme .i-moon, :root[data-theme=dark] #theme .i-sun { display: none }
+    :root[data-theme=dark] #theme .i-moon { display: block }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme=light]) #theme .i-sun { display: none }
+      :root:not([data-theme=light]) #theme .i-moon { display: block }
+    }
+    [data-demo] .row > div:not(.card, .stack) { padding: .5rem; border-radius: calc(var(--l-radius) * .6); background: color-mix(in oklab, var(--l-primary) 14%, #0000); text-align: center }
+  </style>
+</head>
+<body>
+  <a href="#main">Skip to content</a>
+  <!-- icons: Untitled UI Icons (MIT), duocolor split by hand -->
+  <svg aria-hidden="true" style="position: absolute; inline-size: 0; block-size: 0">
+    <symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M7 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9-4a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm-6-1a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/><path d="M2 12c0 5.523 4.477 10 10 10a3 3 0 0 0 3-3v-.5c0-.464 0-.697.026-.892a3 3 0 0 1 2.582-2.582c.195-.026.428-.026.892-.026h.5a3 3 0 0 0 3-3c0-5.523-4.477-10-10-10S2 6.477 2 12Z"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M12 2v2m0 16v2M4 12H2m4.314-5.686L4.9 4.9m12.786 1.414L19.1 4.9M6.314 17.69 4.9 19.104m12.786-1.414 1.414 1.414M22 12h-2"/><path d="M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.955 12.956a8 8 0 1 1-10.91-10.911C5.97 2.526 2 6.799 2 12c0 5.523 4.477 10 10 10 5.2 0 9.473-3.97 9.955-9.044Z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M10 11.5v5M14 11.5v5"/><path d="M16 6v-.8c0-1.12 0-1.68-.218-2.108a2 2 0 0 0-.874-.874C14.48 2 13.92 2 12.8 2h-1.6c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C8 3.52 8 4.08 8 5.2V6M3 6h18m-2 0v11.2c0 1.68 0 2.52-.327 3.162a3 3 0 0 1-1.311 1.311C16.72 22 15.88 22 14.2 22H9.8c-1.68 0-2.52 0-3.162-.327a3 3 0 0 1-1.311-1.311C5 19.72 5 18.88 5 17.2V6"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M5 15c-.932 0-1.398 0-1.765-.152a2 2 0 0 1-1.083-1.083C2 13.398 2 12.932 2 12V5.2c0-1.12 0-1.68.218-2.108a2 2 0 0 1 .874-.874C3.52 2 4.08 2 5.2 2H12c.932 0 1.398 0 1.765.152a2 2 0 0 1 1.083 1.083C15 3.602 15 4.068 15 5"/><path d="M12.2 22h6.6c1.12 0 1.68 0 2.108-.218a2 2 0 0 0 .874-.874C22 20.48 22 19.92 22 18.8v-6.6c0-1.12 0-1.68-.218-2.108a2 2 0 0 0-.874-.874C20.48 9 19.92 9 18.8 9h-6.6c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C9 10.52 9 11.08 9 12.2v6.6c0 1.12 0 1.68.218 2.108a2 2 0 0 0 .874.874C10.52 22 11.08 22 12.2 22Z"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M11 4H6.8c-1.68 0-2.52 0-3.162.327a3 3 0 0 0-1.311 1.311C2 6.28 2 7.12 2 8.8v8.4c0 1.68 0 2.52.327 3.162a3 3 0 0 0 1.311 1.311C4.28 22 5.12 22 6.8 22h8.4c1.68 0 2.52 0 3.162-.327a3 3 0 0 0 1.311-1.311C20 19.72 20 18.88 20 17.2V13"/><path d="M8 16h1.675c.489 0 .733 0 .963-.055.204-.05.4-.13.579-.24.201-.123.374-.296.72-.642L21.5 5.5a2.121 2.121 0 0 0-3-3l-9.563 9.563c-.346.346-.519.519-.642.72a2 2 0 0 0-.24.579c-.055.23-.055.474-.055.963V16Z"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M10 13h4"/><path d="M4 7.997a2.295 2.295 0 0 1-.39-.035A2 2 0 0 1 2.038 6.39C2 6.197 2 5.965 2 5.5s0-.697.038-.89A2 2 0 0 1 3.61 3.038C3.803 3 4.035 3 4.5 3h15c.465 0 .697 0 .89.038a2 2 0 0 1 1.572 1.572c.038.193.038.425.038.89s0 .697-.038.89a2 2 0 0 1-1.572 1.572c-.107.02-.226.03-.39.035M4 8h16v8.2c0 1.68 0 2.52-.327 3.162a3 3 0 0 1-1.311 1.311C17.72 21 16.88 21 15.2 21H8.8c-1.68 0-2.52 0-3.162-.327a3 3 0 0 1-1.311-1.311C4 18.72 4 17.88 4 16.2V8Z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M12 16v-4m0-4h.01"/><path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M5 12h14"/><path d="M19 12l-7-7m7 7-7 7"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path style="stroke: var(--l-duo)" d="M12 21V9.4"/><path d="M12 21l-.1-.15c-.695-1.042-1.042-1.563-1.5-1.94a4 4 0 0 0-1.378-.737C8.453 18 7.827 18 6.575 18H5.2c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874C2 16.48 2 15.92 2 14.8V6.2c0-1.12 0-1.68.218-2.108a2 2 0 0 1 .874-.874C3.52 3 4.08 3 5.2 3h.4c2.24 0 3.36 0 4.216.436a4 4 0 0 1 1.748 1.748C12 6.04 12 7.16 12 9.4M12 21l.1-.15c.695-1.042 1.042-1.563 1.5-1.94a3.999 3.999 0 0 1 1.378-.737C15.547 18 16.173 18 17.425 18H18.8c1.12 0 1.68 0 2.108-.218a2 2 0 0 0 .874-.874C22 16.48 22 15.92 22 14.8V6.2c0-1.12 0-1.68-.218-2.108a2 2 0 0 0-.874-.874C20.48 3 19.92 3 18.8 3h-.4c-2.24 0-3.36 0-4.216.436a4 4 0 0 0-1.748 1.748C12 6.04 12 7.16 12 9.4"/></symbol>
+  </svg>
+  <header>
+    <nav>
+      <a class="logo" href="#"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3C53 3 61 11 61 32S53 61 32 61 3 53 3 32 11 3 32 3Z" fill="var(--l-primary)" style="corner-shape: var(--l-corner)"/><path d="M27 15v23q0 8 8 8h5" fill="none" stroke="var(--l-on-primary)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>leicht</a>
+      <ul>
+        <li><a href="#features">features</a></li>
+        <li><a href="#start">start</a></li>
+        <li><button class="ghost" type="button" commandfor="docs-menu" command="toggle-popover">docs <svg aria-hidden="true"><use href="#i-down"/></svg></button></li>
+        <li><button class="secondary" type="button" commandfor="skin-menu" command="toggle-popover" aria-label="Choose a skin" interestfor="skin-tip"><svg aria-hidden="true"><use href="#i-palette"/></svg></button></li>
+        <li><button class="secondary" id="theme" type="button" interestfor="theme-tip" aria-label="Toggle theme"><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg></button></li>
+      </ul>
+    </nav>
+    <div id="theme-tip" popover="hint">Light / dark</div>
+    <div id="skin-tip" popover="hint">Skin</div>
+    <div id="skin-menu" popover>
+      <ul>
+        <li><button type="button" data-set-skin="">Default</button></li>
+        <li><button type="button" data-set-skin="cyber">Cyber</button></li>
+        <li><button type="button" data-set-skin="terminal">Terminal</button></li>
+        <li><button type="button" data-set-skin="brutal">Brutal</button></li>
+        <li><button type="button" data-set-skin="nord">Nord</button></li>
+        <li><button type="button" data-set-skin="mono">Mono</button></li>
+        <li><button type="button" data-set-skin="sunset">Sunset</button></li>
+      </ul>
+    </div>
+    <div id="docs-menu" popover>
+      <ul>
+        <li><a href="#grid">Grid</a></li>
+        <li><a href="#buttons">Buttons</a></li>
+        <li><a href="#forms">Forms</a></li>
+        <li><a href="#card">Card</a></li>
+        <li><a href="#overlays">Dialog, menu &amp; tooltip</a></li>
+        <li><a href="#tag">Tag</a></li>
+        <li><a href="#carousel">Carousel</a></li>
+        <li><a href="#rtl">RTL</a></li>
+        <li><a href="#liquid">Liquid glass</a></li>
+        <li><a href="#utilities">Utilities</a></li>
+        <li><a href="#skins">Skins</a></li>
+        <li><a href="#theming">Theming</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero text-center">
+      <h1>A <em>tiny</em> (~5.2kb) CSS library</h1>
+      <p class="text-muted">Write plain HTML and it's already styled, using only modern CSS: nesting, cascade layers, <code>light-dark()</code>, squircles and glass.</p>
+      <p class="flex" style="justify-content: center"><a class="button" href="#start">Get started <svg aria-hidden="true" data-flip><use href="#i-arrow"/></svg></a> <a class="button secondary" href="#grid"><svg aria-hidden="true"><use href="#i-book"/></svg> Docs</a></p>
+    </section>
+
+    <section id="features">
+      <h2>Features</h2>
+      <ul class="features">
+        <li>~5.2kb minified + gzipped</li>
+        <li>No preprocessor, no build step to use</li>
+        <li>Classless: semantic HTML just works</li>
+        <li>12-column grid on CSS grid</li>
+        <li>CSS variables for everything</li>
+        <li>Dark mode with zero JavaScript</li>
+        <li>Squircle corners, glass &amp; opt-in liquid refraction</li>
+        <li>Anchored menus, tooltips, a styleable select</li>
+        <li>Overridable without <code>!important</code> (cascade layers)</li>
+        <li>Degrades gracefully in every browser</li>
+        <li>Print stylesheet, skip link &amp; high-contrast support</li>
+        <li>RTL-ready: logical properties throughout</li>
+        <li>Six skins in an optional 1.4&nbsp;kb file</li>
+      </ul>
+    </section>
+
+    <section id="start">
+      <h2>Getting started</h2>
+      <p>Link the stylesheet. That's it.</p>
+      <pre><code>&lt;link rel="stylesheet" href="leicht.min.css"&gt;</code></pre>
+      <p>Or build it from source (<code>npm run build</code>) and take <code>dist/leicht.min.css</code>. A boilerplate page:</p>
+      <pre><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;link rel="stylesheet" href="leicht.min.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;&lt;nav&gt;…&lt;/nav&gt;&lt;/header&gt;
+  &lt;main&gt;…&lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </section>
+
+    <section id="grid">
+      <h2>Grid</h2>
+      <p>A bare <code>.row</code> splits its children evenly.</p>
+      <div data-demo>
+        <div class="row">
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+        </div>
+      </div>
+
+      <h3>Sized columns</h3>
+      <p>Add any <code>.col-1</code>…<code>.col-12</code> and the row switches to twelve tracks. In Chromium, <code>data-span="N"</code> works too.</p>
+      <div data-demo>
+        <div class="row">
+          <div class="col-8">.col-8</div>
+          <div class="col-4">.col-4</div>
+          <div class="col-3">.col-3</div>
+          <div class="col-9">.col-9</div>
+          <div data-span="5">data-span="5"</div>
+          <div data-span="7">data-span="7"</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="buttons">
+      <h2>Buttons</h2>
+      <p>Any <code>&lt;button&gt;</code> is styled. Use <code>.button</code> on links. Variants just repoint variables, so they combine.</p>
+      <div data-demo>
+        <div class="flex">
+          <button>Primary</button>
+          <button class="secondary">Secondary</button>
+          <button class="outline">Outline</button>
+          <button class="ghost">Ghost</button>
+          <button class="error"><svg aria-hidden="true"><use href="#i-trash"/></svg> Error</button>
+          <button class="success outline">Success outline</button>
+          <a class="button" href="#buttons">Link</a>
+          <button disabled>Disabled</button>
+          <button class="secondary" aria-label="Info"><svg aria-hidden="true"><use href="#i-info"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="forms">
+      <h2>Forms</h2>
+      <p>Wrap fields in <code>&lt;label&gt;</code> — except <code>&lt;select&gt;</code>, which needs a separate label with <code>for</code>, because WebKit won't open a select that its label wraps. Errors show only after the user touches a field (<code>:user-invalid</code>). The textarea grows with its content, and the select opens a glass dropdown where supported.</p>
+      <div data-demo>
+        <form onsubmit="event.preventDefault()">
+          <div class="row">
+            <label>Name <input name="name" placeholder="Ada Lovelace" required></label>
+            <label>Email <input type="email" placeholder="ada@example.com"></label>
+          </div>
+          <label for="plan">Plan</label>
+          <select id="plan"><option>Free</option><option>Pro</option><option>Team</option></select>
+          <label>Message <textarea placeholder="Grows as you type"></textarea></label>
+          <fieldset>
+            <legend>Options</legend>
+            <label><input type="checkbox" checked> Subscribe</label>
+            <label><input type="radio" name="billing" checked> Monthly</label>
+            <label><input type="radio" name="billing"> Yearly</label>
+            <label>Volume <input type="range"></label>
+          </fieldset>
+          <button>Submit</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="card">
+      <h2>Card</h2>
+      <p>An <code>&lt;article&gt;</code> is a card; <code>.card</code> does the same on anything. A direct <code>&lt;header&gt;</code> or <code>&lt;footer&gt;</code> bleeds to the edges. Add <code>.glass</code> for the toolbar material, or <code>.liquid</code> for the refracting one — both need something behind them to show, so this row sits on a photo.</p>
+      <div data-demo class="demo-tinted">
+        <div class="row">
+          <article>
+            <header><h4>Card title</h4></header>
+            <p>Plain article, no classes.</p>
+            <footer class="flex"><button class="ghost">Cancel</button><button>OK</button></footer>
+          </article>
+          <div class="card glass">
+            <p><code>.card.glass</code>: translucent, blurred, with a lit edge.</p>
+          </div>
+          <div class="card liquid">
+            <p><code>.card.liquid</code>: refraction, tint and a specular rim.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="overlays">
+      <h2>Dialog, menu &amp; tooltip</h2>
+      <p>Standard HTML popovers and invoker commands, with no JavaScript. Menus anchor to their button. Tooltips (<code>popover="hint"</code>) align to their button's edge, and their tail follows when they flip sides.</p>
+      <div data-demo>
+        <div class="flex">
+          <button commandfor="demo-dialog" command="show-modal">Open dialog</button>
+          <button class="secondary" commandfor="demo-menu" command="toggle-popover">Menu <svg aria-hidden="true"><use href="#i-down"/></svg></button>
+          <button class="outline" interestfor="demo-tip"><svg aria-hidden="true"><use href="#i-info"/></svg> Hover me</button>
+        </div>
+        <dialog id="demo-dialog" closedby="any">
+          <h3>Delete project?</h3>
+          <p class="text-muted">This can't be undone.</p>
+          <form method="dialog">
+            <footer>
+              <button class="secondary">Cancel</button>
+              <button class="error"><svg aria-hidden="true"><use href="#i-trash"/></svg> Delete</button>
+            </footer>
+          </form>
+        </dialog>
+        <div id="demo-menu" popover>
+          <ul>
+            <li><button><svg aria-hidden="true"><use href="#i-edit"/></svg> Rename</button></li>
+            <li><button><svg aria-hidden="true"><use href="#i-copy"/></svg> Duplicate</button></li>
+            <li><button><svg aria-hidden="true"><use href="#i-archive"/></svg> Archive</button></li>
+          </ul>
+        </div>
+        <div id="demo-tip" popover="hint">I have a real tail</div>
+      </div>
+    </section>
+
+    <section id="tag">
+      <h2>Tag</h2>
+      <p>A pill everywhere; a luggage-label shape where <code>border-shape</code> is supported.</p>
+      <div data-demo>
+        <p class="flex"><span class="tag">new</span> <span class="tag success">stable</span> <span class="tag error">deprecated</span></p>
+      </div>
+    </section>
+
+    <section id="details">
+      <h2>Details</h2>
+      <div data-demo>
+        <details>
+          <summary>What's in the box?</summary>
+          <p>Opens with a height animation, where supported.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="liquid">
+      <h2>Liquid glass playground</h2>
+      <p><code>.liquid</code> stacks three layers the way the real material works: a refraction layer that distorts the backdrop, a tint, and a specular rim — all on pseudo-elements, so your markup stays plain. The distortion uses <code>filter</code> on that layer rather than inside <code>backdrop-filter</code>, which may also reach Safari. The dock and pill below are plain elements with <code>.liquid</code>. The controls rewrite the filter live.</p>
+      <div class="liquid-demo">
+        <div class="liquid-stage" id="liquid-stage">
+          <div class="liquid-dock card liquid" id="liquid-panel">
+            <div class="liquid-icons">
+              <a href="#liquid" aria-label="Books"><svg aria-hidden="true"><use href="#i-book"/></svg></a>
+              <a href="#liquid" aria-label="Notes"><svg aria-hidden="true"><use href="#i-edit"/></svg></a>
+              <a href="#liquid" aria-label="Files"><svg aria-hidden="true"><use href="#i-copy"/></svg></a>
+              <a href="#liquid" aria-label="Archive"><svg aria-hidden="true"><use href="#i-archive"/></svg></a>
+              <a href="#liquid" aria-label="Info"><svg aria-hidden="true"><use href="#i-info"/></svg></a>
+            </div>
+          </div>
+          <div class="liquid-pill card liquid">
+            <svg aria-hidden="true"><use href="#i-theme"/></svg>
+            <span>Liquid glass</span>
+          </div>
+        </div>
+        <div class="stack" style="--gap:.75rem">
+          <label for="lq-tint">Tint <output id="lq-tint-o">22%</output></label>
+          <input type="range" id="lq-tint" min="0" max="90" value="22">
+          <label for="lq-blur">Blur <output id="lq-blur-o">0px</output></label>
+          <input type="range" id="lq-blur" min="0" max="20" value="0">
+          <label for="lq-sat">Saturate <output id="lq-sat-o">1.6</output></label>
+          <input type="range" id="lq-sat" min="100" max="300" value="160">
+          <label for="lq-scale">Refraction <output id="lq-scale-o">70</output></label>
+          <input type="range" id="lq-scale" min="0" max="180" value="70">
+          <label for="lq-freq">Ripple size <output id="lq-freq-o">0.008</output></label>
+          <input type="range" id="lq-freq" min="2" max="40" value="8">
+          <label for="lq-radius">Radius <output id="lq-radius-o">1.2rem</output></label>
+          <input type="range" id="lq-radius" min="0" max="40" value="12">
+        </div>
+      </div>
+      <pre><code id="lq-css"></code></pre>
+    </section>
+
+    <section id="utilities">
+      <h2>Utilities</h2>
+      <table>
+        <thead><tr><th>Class</th><th>Does</th></tr></thead>
+        <tbody>
+          <tr><td><code>.text-center</code></td><td>Centre text</td></tr>
+          <tr><td><code>.text-muted</code> / <code>.text-primary</code></td><td>Recolour text (combine with <code>.error</code> / <code>.success</code>)</td></tr>
+          <tr><td><code>.flex</code> / <code>.stack</code></td><td>Wrapping row / vertical stack, gap via <code>--gap</code></td></tr>
+          <tr><td><code>.full-width</code></td><td>Stretch to 100%</td></tr>
+          <tr><td><code>.glass</code></td><td>Translucent blurred material</td></tr>
+          <tr><td><code>.liquid</code></td><td>Liquid glass: refraction, tint and specular rim</td></tr>
+          <tr><td><code>.carousel</code></td><td>Scroll-snap list with <code>::scroll-marker</code> dots</td></tr>
+          <tr><td><code>.row.divided</code></td><td>Rules drawn in the grid gutters</td></tr>
+          <tr><td><code>[data-flip]</code></td><td>Mirror a directional icon in RTL</td></tr>
+          <tr><td><code>.hide-sm</code> / <code>.hide-lg</code></td><td>Hide below / above 40rem</td></tr>
+          <tr><td><code>.sr-only</code></td><td>Visible to screen readers only</td></tr>
+          <tr><td><code>.container</code></td><td>Centred, max-width, query container</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="carousel">
+      <h2>Carousel</h2>
+      <p>A scroll-snap list that gets its own dots — <code>::scroll-marker</code>, no JavaScript. Swipe or scroll it sideways. Where the pseudo-element isn't supported it stays an ordinary scroller.</p>
+      <div data-demo>
+        <ul class="carousel">
+          <li class="card"><h4>One</h4><p>Each item snaps to centre.</p></li>
+          <li class="card"><h4>Two</h4><p>The dots come from <code>::scroll-marker</code>.</p></li>
+          <li class="card"><h4>Three</h4><p>The current one is <code>:target-current</code>.</p></li>
+          <li class="card"><h4>Four</h4><p>No script, no classes on the items.</p></li>
+        </ul>
+      </div>
+
+      <h3>Rules in the gutters</h3>
+      <p>Add <code>.divided</code> to a <code>.row</code> and the gaps get rules — gap decorations, so nothing is drawn on the outer edges.</p>
+      <div data-demo>
+        <div class="row divided">
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rtl">
+      <h2>RTL</h2>
+      <p>Everything is written with logical properties, so <code>&lt;html dir="rtl"&gt;</code> mirrors the whole library — padding, borders, card headers, menu anchoring, the tooltip tail, even the offset shadows in the brutal skin. Set it on <code>&lt;html&gt;</code> and the whole page flips.</p>
+      <p>Two things logical properties can't decide for you, so the library handles them:</p>
+      <ul>
+        <li>Code keeps its own direction: <code>pre</code> stays LTR and inline <code>code</code> is isolated, so a snippet never reorders around Arabic or Hebrew text.</li>
+        <li>Directional icons mirror only if you mark them: <code>&lt;svg data-flip&gt;</code>. An arrow flips; a clock or a logo shouldn't.</li>
+      </ul>
+      <div data-demo dir="rtl" lang="ar">
+        <article>
+          <header><h4>تذكرة ٢٠٤</h4></header>
+          <p>نفس البنية، اتجاه معاكس. <span class="tag">مفتوح</span></p>
+          <footer class="flex"><button class="ghost">لاحقًا</button><button>قبول <svg aria-hidden="true" data-flip><use href="#i-arrow"/></svg></button></footer>
+        </article>
+      </div>
+    </section>
+
+    <section id="skins">
+      <h2>Skins</h2>
+      <p>A skin is a block of token overrides in an optional second file (<code>leicht-themes.css</code>, 1.4&nbsp;kb gzipped for all six). Set <code>&lt;html data-skin="cyber"&gt;</code> — light and dark still work on top.</p>
+      <p class="flex" role="group" aria-label="Choose a skin">
+        <button type="button" data-set-skin="">Default</button>
+        <button type="button" class="secondary" data-set-skin="cyber">Cyber</button>
+        <button type="button" class="secondary" data-set-skin="terminal">Terminal</button>
+        <button type="button" class="secondary" data-set-skin="brutal">Brutal</button>
+        <button type="button" class="secondary" data-set-skin="nord">Nord</button>
+        <button type="button" class="secondary" data-set-skin="mono">Mono</button>
+        <button type="button" class="secondary" data-set-skin="sunset">Sunset</button>
+      </p>
+      <div data-demo>
+        <div class="row">
+          <article>
+            <header><h4>Ticket #204</h4></header>
+            <p>Every skin restyles the same markup. <span class="tag">open</span></p>
+            <footer class="flex"><button class="ghost">Later</button><button>Accept</button></footer>
+          </article>
+          <div class="stack">
+            <label for="skin-mail">Email</label>
+            <input id="skin-mail" type="email" placeholder="ada@example.com">
+            <div class="flex"><button class="outline">Outline</button><button class="error">Delete</button></div>
+            <blockquote>Tokens do the work; the markup never changes.</blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="theming">
+      <h2>Theming</h2>
+      <p>Skins are just bundles of these. Everything is a variable, and one hue re-tints the whole library. Put your overrides in plain CSS; it beats leicht's layers, so you never need <code>!important</code>.</p>
+      <pre><code>:root {
+  --l-hue: 150;          /* re-tints neutrals and primary */
+  --l-radius: .25rem;
+  --l-font: Geist, system-ui, sans-serif;
+  --l-corner: round;     /* opt out of squircles */
+}</code></pre>
+      <p>Dark mode follows the OS. Force it with <code>&lt;html data-theme="dark"&gt;</code>.</p>
+    </section>
+  </main>
+
+  <footer class="text-center">
+    <p><a href="#">Back to top</a> · MIT licensed</p>
+  </footer>
+
+  <script>
+    const root = document.documentElement;
+    theme.onclick = () => {
+      const dark = root.dataset.theme
+        ? root.dataset.theme === 'dark'
+        : matchMedia('(prefers-color-scheme: dark)').matches;
+      root.dataset.theme = dark ? 'light' : 'dark';
+    };
+
+    // skin switcher: toolbar menu and the buttons in the Skins section stay in sync
+    const setSkin = skin => {
+      if (skin) root.dataset.skin = skin; else delete root.dataset.skin;
+      document.querySelectorAll('#skins [data-set-skin]').forEach(b =>
+        b.classList.toggle('secondary', b.dataset.setSkin !== skin));
+    };
+    document.querySelectorAll('[data-set-skin]').forEach(b => b.addEventListener('click', () => {
+      setSkin(b.dataset.setSkin);
+      document.getElementById('skin-menu').hidePopover();
+    }));
+
+    // show each live demo's markup underneath it
+    for (const demo of document.querySelectorAll('[data-demo]')) {
+      const lines = demo.innerHTML.replace(/=""/g, '').split('\n').filter(l => l.trim());
+      const indent = Math.min(...lines.map(l => l.match(/^ */)[0].length));
+      const pre = document.createElement('pre');
+      const code = pre.appendChild(document.createElement('code'));
+      code.textContent = lines.map(l => l.slice(indent)).join('\n');
+      demo.after(pre);
+    }
+
+    // liquid glass playground: rebuild the filter's data URI from the controls
+    const lq = id => document.getElementById(id);
+    const panel = lq('liquid-stage');
+    if (panel) {
+      const out = lq('lq-css');
+      const refract = (scale, freq) => `url("data:image/svg+xml,${encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg"><filter id="l" x="0%" y="0%" width="100%" height="100%">` +
+        `<feTurbulence type="fractalNoise" baseFrequency="${freq} ${freq}" numOctaves="2" seed="92" result="n"/>` +
+        `<feGaussianBlur in="n" stdDeviation="2" result="b"/>` +
+        `<feDisplacementMap in="SourceGraphic" in2="b" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/>` +
+        `</filter></svg>`
+      )}#l")`;
+
+      const apply = () => {
+        const tint = `${lq('lq-tint').value}%`;
+        const blur = `${lq('lq-blur').value}px`;
+        const sat = (lq('lq-sat').value / 100).toFixed(2);
+        const scale = lq('lq-scale').value;
+        const freq = (lq('lq-freq').value / 1000).toFixed(3);
+        const radius = `${(lq('lq-radius').value / 10).toFixed(1)}rem`;
+        lq('lq-tint-o').value = tint;
+        lq('lq-blur-o').value = blur;
+        lq('lq-sat-o').value = sat;
+        lq('lq-scale-o').value = scale;
+        lq('lq-freq-o').value = freq;
+        lq('lq-radius-o').value = radius;
+        panel.style.setProperty('--l-liquid-tint', tint);
+        panel.style.setProperty('--l-liquid-blur', blur);
+        panel.style.setProperty('--l-liquid-sat', sat);
+        panel.style.setProperty('--l-refract', refract(scale, freq));
+        document.querySelectorAll('.liquid-dock, .liquid-pill').forEach(el => { el.style.borderRadius = radius });
+        out.textContent = `.liquid {\n  --l-liquid-tint: ${tint};\n  --l-liquid-blur: ${blur};\n  --l-liquid-sat: ${sat};\n  /* feTurbulence baseFrequency ${freq}, feDisplacementMap scale ${scale} */\n  --l-refract: url("data:image/svg+xml,…#l");\n  border-radius: ${radius};\n}`;
+      };
+      document.querySelectorAll('.liquid-demo input[type=range]').forEach(i => i.addEventListener('input', apply));
+      apply();
+
+      // (drag removed: the reference demo is a static dock)
+
+    }
+
+    // syntax colours via the CSS Custom Highlight API: ranges, no <span>s
+    const HTML = /(?<comment><!--[\s\S]*?-->)|(?<punct><\/?|\/?>)|(?<tag>(?<=<\/?)[\w-]+)|(?<string>"[^"]*")|(?<attr>(?<=\s)[\w-]+(?=[=\s>]))/g;
+    const CSSX = /(?<comment>\/\*[\s\S]*?\*\/)|(?<string>"[^"]*")|(?<at>@[\w-]+)|(?<prop>[\w-]+(?=:\s))|(?<num>(?<![\w-])-?\d*\.?\d+(?:%|[a-z]+)?)|(?<punct>[{}:;(),])/g;
+    if (CSS.highlights) {
+      const groups = {};
+      for (const code of document.querySelectorAll('pre code')) {
+        const node = code.firstChild;
+        if (code.childNodes.length !== 1 || node.nodeType !== Node.TEXT_NODE) continue;
+        const re = node.data.trimStart().startsWith('<') ? HTML : CSSX;
+        for (const m of node.data.matchAll(re)) {
+          const name = Object.keys(m.groups).find(k => m.groups[k] !== undefined);
+          const range = new Range();
+          range.setStart(node, m.index);
+          range.setEnd(node, m.index + m[0].length);
+          (groups[name] ??= new Highlight()).add(range);
+        }
+      }
+      for (const [name, h] of Object.entries(groups)) CSS.highlights.set(`l-${name}`, h);
+    }
+  </script>
+</body>
+</html>

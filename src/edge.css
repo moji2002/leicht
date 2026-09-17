@@ -1,0 +1,177 @@
+/* Bleeding edge. Every rule here is an enhancement: a browser that doesn't
+   know it drops the declaration and keeps the look from the files above.
+   Never put an unsupported function inside a custom property: the property
+   would still be "valid" and poison every var() that reads it. */
+
+@view-transition { navigation: auto }
+
+@layer leicht.components {
+  html { scrollbar-color: var(--l-border) #0000 }
+
+  /* arrows, chevrons and other directional icons: mark them and they mirror in RTL */
+  :dir(rtl) [data-flip] { scale: -1 1 }
+
+  @supports (color: contrast-color(red)) {
+    :root { --l-on-primary: contrast-color(var(--l-primary)) }
+  }
+
+  /* optical centring: trim the line box to cap height, then pay it back in padding */
+  /* trims leading so headings sit on their margins; flex buttons can't be trimmed */
+  @supports (text-box: trim-both cap alphabetic) {
+    h1, h2, h3, h4 { text-box: trim-both cap alphabetic }
+  }
+
+  /* the toolbar starts flat and turns to glass as the page scrolls under it */
+  @supports (animation-timeline: scroll()) {
+    body > header {
+      animation: l-lift linear both;
+      animation-timeline: scroll();
+      animation-range: 0 5rem;
+    }
+    @keyframes l-lift {
+      from { background-color: #0000; background-image: none; box-shadow: none; backdrop-filter: blur(0) saturate(1) }
+    }
+  }
+
+  /* a real specular rim: a gradient painted only in the border area */
+  @supports (background-clip: border-area) {
+    :root { --l-rim: linear-gradient(light-dark(#fff, #fff8), light-dark(#fff3, #fff1) 40%, light-dark(#fff8, #fff3)) border-area }
+    /* two rules: an unknown ::picker() would void a shared selector list */
+    :is(body > header, dialog, [popover]:not([popover=hint]), .glass) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass) padding-box }
+    ::picker(select) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass) padding-box }
+  }
+
+  /* toolbar slides away while scrolling down, back on the way up; stays while its menu is open */
+  html { container-type: scroll-state }
+  body > header { transition: translate .3s cubic-bezier(.2, .7, .3, 1) }
+  @container scroll-state(scrolled: bottom) {
+    body > header:not(:has(:popover-open, :focus-within)) { translate: 0 calc(-100% - 1rem) }
+  }
+
+  /* <div data-span="5"> works as well as .col-5 */
+  .row:has(> [data-span]) { grid-auto-flow: row; grid-template-columns: repeat(12, minmax(0, 1fr)) }
+  .row > [data-span] { --span: attr(data-span type(<integer>)); grid-column: span var(--span, 12) }
+
+  @supports (min-inline-size: anchor-size(width)) {
+    [popover]:not([popover=hint]) { min-inline-size: max(12rem, anchor-size(width)) }
+  }
+
+  /* menu items cascade in */
+  :popover-open li {
+    transition: opacity .2s, translate .2s;
+    transition-delay: calc(sibling-index() * 25ms);
+    @starting-style { opacity: 0; translate: 0 -.25rem }
+  }
+
+  /* <select> with a real, stylable, glass dropdown.
+     Gated behind a second, Chromium-only probe on purpose: Safari 27 reports base-select support
+     but does not open the menu with these styles applied, and there is no way to feature-detect
+     that. Safari keeps its native select, which works. Re-test when WebKit's implementation lands
+     properly, then drop the border-area probe. */
+  @supports (appearance: base-select) and (background-clip: border-area) {
+    select, ::picker(select) { appearance: base-select }
+    select { display: flex; align-items: center; justify-content: space-between; gap: .5em }
+    select::picker-icon { transition: rotate .2s }
+    select:open::picker-icon { rotate: 180deg }
+    ::picker(select) {
+      position-try-order: normal;
+      margin-block: .35rem;
+      padding: .35rem;
+      border: 0;
+      border-radius: calc(var(--l-radius) * 1.5);
+      corner-shape: var(--l-corner);
+      background: var(--l-glass);
+      backdrop-filter: var(--l-blur);
+      box-shadow: var(--l-glass-edge), var(--l-shadow);
+      opacity: 0;
+      transition: .2s allow-discrete;
+      transition-property: opacity, display, overlay;
+    }
+    ::picker(select):popover-open {
+      opacity: 1;
+      @starting-style { opacity: 0 }
+    }
+    option {
+      padding: .4em .6em;
+      border-radius: var(--l-radius);
+      &:is(:hover, :focus-visible) { background: var(--l-primary); color: var(--l-on-primary); outline: 0 }
+      &::checkmark { order: 1; margin-inline-start: auto }
+    }
+  }
+
+  /* Apple-style liquid glass, opt-in with .liquid. Three stacked layers, as the material works:
+     a refraction layer that distorts the captured backdrop, a tint, and a specular rim.
+     The distortion is `filter` on that layer rather than url() inside backdrop-filter — the same
+     trick the reference pen uses, and it may reach WebKit, which refuses url() in backdrop-filter.
+     Both pseudo-elements sit at z-index -1: painted above the element's background, below its
+     content, so no extra markup is needed. */
+  .liquid {
+    position: relative;
+    isolation: isolate;
+    border: 0;
+    background: none;
+    box-shadow: var(--l-shadow);
+    &::before, &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      corner-shape: var(--l-corner);
+    }
+    &::before {
+      backdrop-filter: blur(var(--l-liquid-blur)) saturate(var(--l-liquid-sat));
+      filter: var(--l-refract);
+    }
+    &::after {
+      background: color-mix(in oklab, var(--l-bg) var(--l-liquid-tint), #0000);
+      box-shadow: inset 1px 1px 0 var(--l-liquid-edge), inset 0 0 5px var(--l-liquid-edge);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .liquid::before { backdrop-filter: none; filter: none }
+  }
+
+  /* <button interestfor="tip"> + <div id="tip" popover="hint">.
+     Edge-aligned, not centred: a centred tooltip gets shoved off its anchor near the viewport
+     edge and its tail stops pointing at anything. The tail follows each flip via anchored queries. */
+  [popover=hint] {
+    --_t: .35rem;
+    min-inline-size: 0;
+    inline-size: max-content;
+    max-inline-size: 20rem;
+    padding: .4rem .7rem;
+    border: 0;
+    border-radius: var(--l-radius);
+    background: var(--l-fg);
+    color: var(--l-bg);
+    backdrop-filter: none;
+    box-shadow: none;
+    font-size: .9375rem;
+    overflow: visible;
+    transform-origin: 1rem 100%;
+    &:dir(rtl) { transform-origin: calc(100% - 1rem) 100% }
+    @supports (position-area: block-start) {
+      container-type: anchored;
+      margin: 0 0 calc(var(--_t) + .2rem);
+      position-area: block-start span-inline-end;
+      position-try-fallbacks: flip-inline, flip-block, flip-block flip-inline;
+      &::before {
+        content: "";
+        position: absolute;
+        inset-block-start: calc(100% - 1px);
+        inset-inline-start: calc(1.1rem - var(--_t));
+        inline-size: calc(var(--_t) * 2);
+        block-size: calc(var(--_t) + 1px);
+        background: inherit;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+      }
+    }
+  }
+  @container anchored(fallback: flip-inline) or anchored(fallback: flip-block flip-inline) {
+    [popover=hint]::before { inset-inline: auto calc(1.1rem - var(--_t)) }
+  }
+  @container anchored(fallback: flip-block) or anchored(fallback: flip-block flip-inline) {
+    [popover=hint]::before { inset-block: auto calc(100% - 1px); clip-path: polygon(50% 0, 100% 100%, 0 100%) }
+  }
+}

@@ -1,0 +1,172 @@
+/*! leicht-themes v0.1.0 — optional skins. Link after leicht.css, set <html data-skin="…">. MIT
+    Each skin is mostly token overrides; light/dark still works through data-theme. */
+@layer leicht.components {
+
+  /* ---- cyber: neon, bevelled corners, glow instead of shadow. Dark is its home, but the
+     light pairing keeps the same hues at text-safe lightness instead of forcing a scheme. ---- */
+  [data-skin=cyber] {
+    --l-font: "Geist Mono", ui-monospace, monospace;
+    --l-bg: light-dark(oklch(97.5% .02 200), oklch(15% .04 285));
+    --l-fg: light-dark(oklch(22% .06 285), oklch(95% .04 190));
+    --l-primary: light-dark(oklch(50% .14 200), oklch(84% .18 190));
+    --l-error: light-dark(oklch(55% .24 350), oklch(72% .25 350));
+    --l-success: light-dark(oklch(52% .16 155), oklch(86% .21 140));
+    --l-on-primary: light-dark(oklch(99% .01 200), oklch(14% .04 285));
+    --l-surface: color-mix(in oklab, var(--l-primary) 7%, var(--l-bg));
+    --l-muted: color-mix(in oklab, var(--l-fg) 62%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-primary) 32%, #0000);
+    --l-corner: bevel;
+    --l-radius: .7rem;
+    --l-shadow: 0 0 28px color-mix(in oklab, var(--l-primary) 30%, #0000);
+    --l-glass: color-mix(in oklab, var(--l-bg) 55%, #0000);
+    --l-glass-edge: inset 0 1px color-mix(in oklab, var(--l-primary) 55%, #0000),
+                    inset 0 0 0 1px color-mix(in oklab, var(--l-primary) 22%, #0000);
+    --l-liquid-edge: color-mix(in oklab, var(--l-primary) 55%, #0000);
+    --l-syn-1: light-dark(oklch(48% .16 200), oklch(84% .18 190));
+    --l-syn-2: light-dark(oklch(50% .22 330), oklch(84% .2 330));
+    --l-syn-3: light-dark(oklch(48% .16 150), oklch(88% .2 140));
+
+    & :is(button, [type=submit], [type=button], [type=reset], .button) {
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-size: .92em;
+      &:hover { box-shadow: 0 0 18px color-mix(in oklab, var(--l-primary) 55%, #0000) }
+    }
+    & :is(h1, h2, h3) { text-shadow: 0 0 22px color-mix(in oklab, var(--l-primary) 35%, #0000) }
+    & .tag { text-transform: uppercase; letter-spacing: .06em }
+  }
+
+  /* ---- terminal: monospace everything, square, hairline, no depth ---- */
+  [data-skin=terminal] {
+    --l-font: "Geist Mono", ui-monospace, monospace;
+    --l-mono: var(--l-font);
+    /* a console ground: flat neutral grey, no tint and no wash — green stays on the text */
+    --l-bg: light-dark(oklch(93.5% 0 0), oklch(21% 0 0));
+    --l-fg: light-dark(oklch(23% 0 0), oklch(93% 0 0));
+    --l-surface: color-mix(in oklab, var(--l-fg) 7%, var(--l-bg));
+    --l-primary: light-dark(oklch(45% .14 145), oklch(82% .18 145));
+    --l-radius: 0;
+    --l-corner: round;
+    /* flat skin: no glass, and a hard un-blurred shadow instead of a soft one */
+    --l-shadow: 3px 3px 0 color-mix(in oklab, var(--l-fg) 20%, #0000);
+    --l-glass: var(--l-bg);
+    --l-blur: none;
+    --l-glass-edge: 0 0 #0000;   /* not `none`: it would void the whole shadow list */
+    --l-liquid-tint: 100%;
+    --l-border: color-mix(in oklab, var(--l-fg) 42%, #0000);
+
+    /* TUI boxes: one crisp weight on every framed thing */
+    & :is(article, .card, dialog, [popover], fieldset, details, pre, body > header,
+          input, select, textarea, button, [type=submit], [type=button], [type=reset], .button) {
+      border: 2px solid var(--l-border);
+    }
+    & :is(button, [type=submit], [type=button], [type=reset], .button):not(.ghost) { border-color: currentColor }
+    & .ghost { border-color: #0000 }
+    /* the dialog's ::backdrop blur is its own property, not --l-blur */
+    & dialog::backdrop { backdrop-filter: none; background: color-mix(in oklab, var(--l-fg) 45%, #0000) }
+    &:dir(rtl) { --l-shadow: -3px 3px 0 color-mix(in oklab, var(--l-fg) 20%, #0000) }
+
+    & h2::before { content: "## "; color: var(--l-muted) }
+    & h3::before { content: "### "; color: var(--l-muted) }
+    & :is(h1, h2, h3, h4) { letter-spacing: -.01em }
+    /* not on icon-only buttons, which are keyed on aria-label */
+    & :is(button, [type=submit], [type=button], [type=reset], .button):not([aria-label])::before { content: "> " }
+  }
+
+  /* ---- brutal: thick ink borders, hard offset shadow ---- */
+  [data-skin=brutal] {
+    --l-primary: light-dark(oklch(58% .22 25), oklch(80% .2 25));
+    --l-radius: 0;
+    --l-corner: round;
+    --l-border: var(--l-fg);
+    --l-shadow: 4px 4px 0 var(--l-fg);
+    &:dir(rtl) { --l-shadow: -4px 4px 0 var(--l-fg) }
+    --l-glass: var(--l-bg);
+    --l-blur: none;
+    --l-glass-edge: 0 0 #0000;   /* not `none`: it would void the whole shadow list */
+
+    & :is(article, .card, dialog, [popover], fieldset, details, pre, input, select, textarea,
+          button, [type=submit], [type=button], [type=reset], .button, body > header) {
+      border: 2px solid var(--l-fg);
+    }
+    & :is(article, .card, button, [type=submit], [type=button], [type=reset], .button, body > header) {
+      box-shadow: 4px 4px 0 var(--l-fg);
+      &:dir(rtl) { box-shadow: -4px 4px 0 var(--l-fg) }
+    }
+    /* a lighter scrim: an ink shadow on a near-black backdrop is invisible */
+    & dialog::backdrop { backdrop-filter: none; background: color-mix(in oklab, var(--l-fg) 32%, #0000) }
+    /* overlays sit above everything: a heavier slab, in the accent so it reads against the scrim */
+    & :is(dialog, [popover]) {
+      border-width: 3px;
+      box-shadow: 10px 10px 0 var(--l-primary);
+      &:dir(rtl) { box-shadow: -10px 10px 0 var(--l-primary) }
+    }
+    & .ghost { border-color: #0000; box-shadow: none }
+    & :is(button, [type=submit], [type=button], [type=reset], .button) {
+      font-weight: 700;
+      &:active { translate: 2px 2px; box-shadow: 2px 2px 0 var(--l-fg) }
+      &:active:dir(rtl) { translate: -2px 2px; box-shadow: -2px 2px 0 var(--l-fg) }
+      &:hover { filter: none; background: color-mix(in oklab, var(--_bg) 88%, var(--l-fg)) }
+    }
+    & :is(h1, h2, h3) { letter-spacing: -.03em }
+  }
+
+  /* ---- nord: muted arctic blues, soft edges ---- */
+  [data-skin=nord] {
+    --l-hue: 245;
+    --l-bg: light-dark(oklch(97% .008 245), oklch(24% .022 250));
+    --l-fg: light-dark(oklch(30% .02 250), oklch(93% .012 245));
+    --l-primary: light-dark(oklch(50% .1 245), oklch(80% .08 245));
+    --l-error: light-dark(oklch(52% .13 20), oklch(78% .1 20));
+    --l-success: light-dark(oklch(52% .1 150), oklch(80% .09 150));
+    --l-surface: color-mix(in oklab, var(--l-fg) 6%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-fg) 16%, #0000);
+    --l-radius: .9rem;
+    --l-shadow: 0 8px 24px -14px color-mix(in oklab, var(--l-fg) 60%, #0000);
+  }
+
+  /* ---- mono: no hue at all; hierarchy comes from weight and contrast ---- */
+  [data-skin=mono] {
+    --l-bg: light-dark(#fff, oklch(13% 0 0));
+    --l-fg: light-dark(oklch(18% 0 0), oklch(96% 0 0));
+    --l-primary: light-dark(oklch(32% 0 0), oklch(86% 0 0));
+    /* no hue means no colour signal: destructive is the darkest/lightest thing on screen and
+       is underlined as well, since a grey button alone cannot say "this deletes something" */
+    --l-error: light-dark(oklch(12% 0 0), oklch(99% 0 0));
+    --l-success: light-dark(oklch(45% 0 0), oklch(72% 0 0));
+    --l-on-primary: var(--l-bg);
+    --l-surface: color-mix(in oklab, var(--l-fg) 5%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-fg) 22%, #0000);
+    --l-radius: .35rem;
+    /* flat like terminal: no glass, hard un-blurred shadow */
+    --l-shadow: 3px 3px 0 color-mix(in oklab, var(--l-fg) 18%, #0000);
+    --l-glass: var(--l-bg);
+    --l-blur: none;
+    --l-glass-edge: 0 0 #0000;   /* not `none`: it would void the whole shadow list */
+    --l-liquid-tint: 100%;
+    --l-syn-1: var(--l-fg); --l-syn-2: var(--l-muted); --l-syn-3: var(--l-muted);
+
+    &:dir(rtl) { --l-shadow: -3px 3px 0 color-mix(in oklab, var(--l-fg) 18%, #0000) }
+    & :is(dialog, [popover], body > header) { border: 1px solid var(--l-border) }
+    & dialog::backdrop { backdrop-filter: none; background: color-mix(in oklab, var(--l-fg) 45%, #0000) }
+
+    & a:not(.button) { text-decoration-thickness: 2px }
+    & .tag { background: var(--l-fg); color: var(--l-bg); border-color: #0000 }
+    & .error { text-decoration: underline; text-underline-offset: .25em }
+    & :is(h1, h2, h3) { letter-spacing: -.03em }
+  }
+
+  /* ---- sunset: warm amber and pink over deep plum ---- */
+  [data-skin=sunset] {
+    --l-bg: light-dark(oklch(98.5% .015 70), oklch(18% .045 330));
+    --l-fg: light-dark(oklch(26% .04 40), oklch(95% .02 60));
+    --l-primary: light-dark(oklch(56% .18 35), oklch(80% .16 55));
+    --l-error: light-dark(oklch(54% .2 10), oklch(78% .16 10));
+    --l-success: light-dark(oklch(54% .13 155), oklch(80% .13 155));
+    --l-surface: color-mix(in oklab, var(--l-primary) 8%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-primary) 24%, #0000);
+    --l-radius: 1.1rem;
+    --l-shadow: 0 10px 30px -14px color-mix(in oklab, var(--l-primary) 70%, #0000);
+    --l-glass-edge: inset 0 1px light-dark(#fff, color-mix(in oklab, var(--l-primary) 45%, #0000));
+  }
+}

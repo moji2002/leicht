@@ -1,0 +1,64 @@
+@layer leicht.base {
+  button, input, select, textarea { font: inherit; color: inherit }
+  input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=submit], [type=button], [type=reset]), select, textarea {
+    display: block;
+    inline-size: 100%;
+    padding: .5em .75em;
+    border: 1px solid var(--l-border);
+    border-radius: var(--l-radius);
+    background: var(--l-bg);
+    transition: border-color .15s, box-shadow .15s;
+    &:focus { outline: 0; border-color: var(--l-primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--l-primary) 25%, #0000) }
+    &:user-invalid { border-color: var(--l-error) }
+  }
+  textarea { min-block-size: 5lh; resize: vertical; field-sizing: content }
+  input, progress { accent-color: var(--l-primary) }
+  [type=checkbox], [type=radio] { inline-size: 1.1em; block-size: 1.1em; margin: 0; margin-inline-end: .4em; vertical-align: -.15em }
+  :disabled { opacity: .5; cursor: not-allowed }
+
+  label {
+    display: block;
+    margin-block-end: var(--l-space);
+    font-weight: 500;
+    & > :is(input, select, textarea) { margin-block-start: .3em; font-weight: 400 }
+    &:has(> [type=checkbox], > [type=radio]) { font-weight: 400; cursor: pointer }
+  }
+  /* a <select> must not be wrapped in its <label>: WebKit then focuses it without opening the
+     menu, so the separate label + for/id pattern is styled to match the wrapping one */
+  label:has(+ :is(input, select, textarea)) { margin-block-end: .3em }
+  label + :is(input, select, textarea) { margin-block-end: var(--l-space) }
+
+  fieldset { padding: var(--l-space); border: 1px solid var(--l-border); border-radius: var(--l-radius) }
+  legend { padding-inline: .4em; font-weight: 600 }
+
+  button, [type=submit], [type=button], [type=reset], .button {
+    --_bg: var(--l-primary);
+    --_fg: var(--l-on-primary);
+    --_bd: #0000;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+    padding: .5em 1.1em;
+    border: 1px solid var(--_bd);
+    border-radius: var(--l-radius);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter .15s, translate .1s;
+    /* icons carry built-in whitespace; the negative margin cancels it on both sides.
+       :only-child ignores text nodes, so icon-only buttons are keyed on aria-label */
+    & svg { inline-size: 1.15em; block-size: 1.15em; margin-inline: -.2em; flex: none }
+    &[aria-label]:has(> svg) { padding-inline: .7em }
+    &:hover { filter: brightness(1.1) }
+    &:active { translate: 0 1px }
+    &:disabled { filter: none; translate: none }
+  }
+
+  /* squircles where supported; plain rounded corners elsewhere */
+  :is(input, select, textarea, button, .button, fieldset, details, pre, article, .card, dialog, [popover], body > header) {
+    corner-shape: var(--l-corner);
+  }
+}

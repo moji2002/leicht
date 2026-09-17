@@ -1,0 +1,21 @@
+{
+  "name": "leicht",
+  "version": "0.1.0",
+  "description": "A tiny classless-first CSS library written in modern CSS: nesting, cascade layers, light-dark(), container queries.",
+  "license": "MIT",
+  "author": "Mojtaba Beheshti <info@rublex.io>",
+  "type": "module",
+  "main": "dist/leicht.min.css",
+  "style": "dist/leicht.min.css",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch"
+  },
+  "devDependencies": {
+    "@untitledui/icons": "^0.0.22"
+  }
+}

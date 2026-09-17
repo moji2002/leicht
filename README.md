@@ -1,5 +1,9 @@
 # leicht
 
+[![npm](https://img.shields.io/npm/v/leicht?color=0a66c2)](https://www.npmjs.com/package/leicht)
+[![gzip size](https://img.shields.io/badge/gzip-5.6%20kB-0a66c2)](https://github.com/moji2002/leicht)
+[![license](https://img.shields.io/npm/l/leicht?color=0a66c2)](./LICENSE)
+
 A tiny classless-first CSS library, written in modern CSS. Link one file, write ordinary HTML,
 and it's styled. **5.6 kB gzipped**, no build step, no dependencies.
 
@@ -10,6 +14,8 @@ and it's styled. **5.6 kB gzipped**, no build step, no dependencies.
 ```bash
 npm i leicht
 ```
+
+**[Docs and live demos →](https://moji2002.github.io/leicht/)**
 
 ## What you get without writing a single class
 

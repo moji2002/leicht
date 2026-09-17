@@ -1,19 +1,73 @@
 {
   "name": "leicht",
   "version": "0.1.0",
-  "description": "A tiny classless-first CSS library written in modern CSS: nesting, cascade layers, light-dark(), container queries.",
+  "description": "A tiny classless-first CSS library in modern CSS: cascade layers, light-dark(), squircles, glass and liquid refraction. Link one file, write ordinary HTML.",
+  "keywords": [
+    "leicht",
+    "leicht.css",
+    "css",
+    "classless",
+    "classless-css",
+    "css-framework",
+    "stylesheet",
+    "minimal",
+    "lightweight",
+    "design-system",
+    "cascade-layers",
+    "oklch",
+    "dark-mode",
+    "light-dark",
+    "liquid-glass",
+    "glassmorphism",
+    "squircle",
+    "semantic-html",
+    "logical-properties",
+    "rtl",
+    "no-build",
+    "themes",
+    "frontend",
+    "ui",
+    "responsive"
+  ],
   "license": "MIT",
   "author": "Mojtaba Beheshti <info@rublex.io>",
+  "homepage": "https://moji2002.github.io/leicht/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moji2002/leicht.git"
+  },
+  "bugs": {
+    "url": "https://github.com/moji2002/leicht/issues"
+  },
   "type": "module",
-  "main": "dist/leicht.min.css",
-  "style": "dist/leicht.min.css",
+  "main": "dist/leicht.css",
+  "style": "dist/leicht.css",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./dist/leicht.css",
+    "./min": "./dist/leicht.min.css",
+    "./themes": "./dist/leicht-themes.css",
+    "./themes/min": "./dist/leicht-themes.min.css",
+    "./dist/leicht.css": "./dist/leicht.css",
+    "./dist/leicht.min.css": "./dist/leicht.min.css",
+    "./dist/leicht-themes.css": "./dist/leicht-themes.css",
+    "./dist/leicht-themes.min.css": "./dist/leicht-themes.min.css",
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
-    "src"
+    "src",
+    "build.js",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "node build.js",
-    "dev": "node build.js --watch"
+    "dev": "node build.js --watch",
+    "check:package": "npm pack --dry-run --ignore-scripts",
+    "prepublishOnly": "node build.js"
   },
   "devDependencies": {
     "@untitledui/icons": "^0.0.22"

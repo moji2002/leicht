@@ -14,6 +14,56 @@
   textarea { min-block-size: 5lh; resize: vertical; field-sizing: content }
   input, progress { accent-color: var(--l-primary) }
   [type=checkbox], [type=radio] { inline-size: 1.1em; block-size: 1.1em; margin: 0; margin-inline-end: .4em; vertical-align: -.15em }
+
+  progress, meter {
+    appearance: none;
+    inline-size: 100%;
+    block-size: .55rem;
+    border: 0;
+    border-radius: 99em;
+    background: var(--l-surface);
+    /* every engine names the fill differently; none of them inherit the track's radius */
+    &::-webkit-progress-bar { border-radius: 99em; background: var(--l-surface) }
+    &::-webkit-progress-value { border-radius: 99em; background: var(--l-primary) }
+    &::-moz-progress-bar { border-radius: 99em; background: var(--l-primary) }
+  }
+  meter {
+    &::-webkit-meter-bar { border: 0; border-radius: 99em; background: var(--l-surface) }
+    &::-webkit-meter-optimum-value { border-radius: 99em; background: var(--l-success) }
+    &::-webkit-meter-suboptimum-value { border-radius: 99em; background: var(--l-primary) }
+    &::-webkit-meter-even-less-good-value { border-radius: 99em; background: var(--l-error) }
+    &::-moz-meter-bar { border-radius: 99em; background: var(--l-success) }
+  }
+
+  /* <input type="checkbox" role="switch">: a switch without a class */
+  [role=switch] {
+    appearance: none;
+    flex: none;
+    inline-size: 2.25em;
+    block-size: 1.3em;
+    padding: .15em;
+    border: 1px solid var(--l-border);
+    border-radius: 99em;
+    corner-shape: var(--l-corner);
+    background: var(--l-surface);
+    transition: background .2s, border-color .2s;
+    &::after {
+      content: "";
+      display: block;
+      block-size: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--l-bg);
+      box-shadow: 0 1px 2px #0003;
+      transition: translate .2s var(--l-ease, cubic-bezier(.2, .7, .3, 1));
+    }
+    &:checked {
+      background: var(--l-primary);
+      border-color: #0000;
+      &::after { translate: .95em 0 }
+      &:dir(rtl)::after { translate: -.95em 0 }
+    }
+  }
   :disabled { opacity: .5; cursor: not-allowed }
 
   label {

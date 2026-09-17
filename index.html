@@ -135,6 +135,7 @@
         <li><a href="#card">Card</a></li>
         <li><a href="#overlays">Dialog, menu &amp; tooltip</a></li>
         <li><a href="#tag">Tag</a></li>
+        <li><a href="#components">Alerts &amp; switches</a></li>
         <li><a href="#carousel">Carousel</a></li>
         <li><a href="#rtl">RTL</a></li>
         <li><a href="#liquid">Liquid glass</a></li>
@@ -373,6 +374,8 @@
           <tr><td><code>.full-width</code></td><td>Stretch to 100%</td></tr>
           <tr><td><code>.glass</code></td><td>Translucent blurred material</td></tr>
           <tr><td><code>.liquid</code></td><td>Liquid glass: refraction, tint and specular rim</td></tr>
+          <tr><td><code>.alert</code></td><td>Callout; combine with <code>.error</code> / <code>.success</code></td></tr>
+          <tr><td><code>.group</code></td><td>Join buttons into one segmented bar</td></tr>
           <tr><td><code>.carousel</code></td><td>Scroll-snap list with <code>::scroll-marker</code> dots</td></tr>
           <tr><td><code>.row.divided</code></td><td>Rules drawn in the grid gutters</td></tr>
           <tr><td><code>[data-flip]</code></td><td>Mirror a directional icon in RTL</td></tr>
@@ -381,6 +384,55 @@
           <tr><td><code>.container</code></td><td>Centred, max-width, query container</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="components">
+      <h2>Alerts, switches &amp; meters</h2>
+      <p>A callout takes <code>.alert</code> and the same variants as buttons. <code>&lt;progress&gt;</code>, <code>&lt;meter&gt;</code> and a checkbox with <code>role="switch"</code> need no classes at all.</p>
+      <div data-demo>
+        <div class="alert">
+          <svg aria-hidden="true"><use href="#i-info"/></svg>
+          <p>Cascade layers mean your CSS always wins. No <code>!important</code> anywhere.</p>
+        </div>
+        <div class="alert success">
+          <svg aria-hidden="true"><use href="#i-archive"/></svg>
+          <p>Deployed to production.</p>
+        </div>
+        <div class="alert error">
+          <svg aria-hidden="true"><use href="#i-trash"/></svg>
+          <p>Three files could not be read.</p>
+        </div>
+
+        <div class="row">
+          <div class="stack">
+            <label><input type="checkbox" role="switch" checked> Ship logs</label>
+            <label><input type="checkbox" role="switch"> Verbose mode</label>
+            <label><input type="checkbox" role="switch" disabled> Locked</label>
+          </div>
+          <div class="stack">
+            <label for="p1">Upload <progress id="p1" value="0.7"></progress></label>
+            <label for="m1">Disk <meter id="m1" value="0.82" low="0.5" high="0.8" optimum="0.2"></meter></label>
+            <label for="m2">Budget <meter id="m2" value="0.35" low="0.5" high="0.8" optimum="0.2"></meter></label>
+          </div>
+        </div>
+      </div>
+
+      <h3>Joined controls</h3>
+      <p>Wrap buttons in <code>.group</code> and they become one segmented bar — the outer corners round, the inner ones don't, and it flips correctly in RTL.</p>
+      <div data-demo>
+        <div class="flex">
+          <div class="group">
+            <button class="secondary">Day</button>
+            <button class="secondary">Week</button>
+            <button>Month</button>
+          </div>
+          <div class="group">
+            <button class="outline" aria-label="Edit"><svg aria-hidden="true"><use href="#i-edit"/></svg></button>
+            <button class="outline" aria-label="Duplicate"><svg aria-hidden="true"><use href="#i-copy"/></svg></button>
+            <button class="outline" aria-label="Archive"><svg aria-hidden="true"><use href="#i-archive"/></svg></button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="carousel">

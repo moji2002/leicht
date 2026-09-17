@@ -136,6 +136,56 @@
   textarea { min-block-size: 5lh; resize: vertical; field-sizing: content }
   input, progress { accent-color: var(--l-primary) }
   [type=checkbox], [type=radio] { inline-size: 1.1em; block-size: 1.1em; margin: 0; margin-inline-end: .4em; vertical-align: -.15em }
+
+  progress, meter {
+    appearance: none;
+    inline-size: 100%;
+    block-size: .55rem;
+    border: 0;
+    border-radius: 99em;
+    background: var(--l-surface);
+    /* every engine names the fill differently; none of them inherit the track's radius */
+    &::-webkit-progress-bar { border-radius: 99em; background: var(--l-surface) }
+    &::-webkit-progress-value { border-radius: 99em; background: var(--l-primary) }
+    &::-moz-progress-bar { border-radius: 99em; background: var(--l-primary) }
+  }
+  meter {
+    &::-webkit-meter-bar { border: 0; border-radius: 99em; background: var(--l-surface) }
+    &::-webkit-meter-optimum-value { border-radius: 99em; background: var(--l-success) }
+    &::-webkit-meter-suboptimum-value { border-radius: 99em; background: var(--l-primary) }
+    &::-webkit-meter-even-less-good-value { border-radius: 99em; background: var(--l-error) }
+    &::-moz-meter-bar { border-radius: 99em; background: var(--l-success) }
+  }
+
+  /* <input type="checkbox" role="switch">: a switch without a class */
+  [role=switch] {
+    appearance: none;
+    flex: none;
+    inline-size: 2.25em;
+    block-size: 1.3em;
+    padding: .15em;
+    border: 1px solid var(--l-border);
+    border-radius: 99em;
+    corner-shape: var(--l-corner);
+    background: var(--l-surface);
+    transition: background .2s, border-color .2s;
+    &::after {
+      content: "";
+      display: block;
+      block-size: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--l-bg);
+      box-shadow: 0 1px 2px #0003;
+      transition: translate .2s var(--l-ease, cubic-bezier(.2, .7, .3, 1));
+    }
+    &:checked {
+      background: var(--l-primary);
+      border-color: #0000;
+      &::after { translate: .95em 0 }
+      &:dir(rtl)::after { translate: -.95em 0 }
+    }
+  }
   :disabled { opacity: .5; cursor: not-allowed }
 
   label {
@@ -260,6 +310,41 @@
     background: var(--l-glass);
     backdrop-filter: var(--l-blur);
     box-shadow: var(--l-glass-edge), var(--l-shadow);
+  }
+
+  /* callout. .error / .success repoint --l-primary, so the variants come for free */
+  .alert {
+    display: flex;
+    align-items: start;
+    gap: .75em;
+    margin-block-end: var(--l-space);
+    padding: .85em 1em;
+    border: 1px solid color-mix(in oklab, var(--l-primary) 35%, #0000);
+    border-radius: var(--l-radius);
+    corner-shape: var(--l-corner);
+    background: color-mix(in oklab, var(--l-primary) 10%, var(--l-bg));
+    & > :last-child { margin-block-end: 0 }
+    & svg { flex: none; inline-size: 1.25em; block-size: 1.25em; color: var(--l-primary) }
+  }
+
+  /* joined controls: a segmented bar out of ordinary buttons */
+  .group {
+    display: inline-flex;
+    vertical-align: middle;
+    & > * {
+      border-radius: 0;
+      margin-inline-start: -1px;
+      &:hover, &:focus-visible { position: relative; z-index: 1 }
+    }
+    & > :first-child {
+      margin-inline-start: 0;
+      border-start-start-radius: var(--l-radius);
+      border-end-start-radius: var(--l-radius);
+    }
+    & > :last-child {
+      border-start-end-radius: var(--l-radius);
+      border-end-end-radius: var(--l-radius);
+    }
   }
 
   /* a scroll-snap list with dots, from plain markup. ::scroll-marker is Chromium-only for now;

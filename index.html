@@ -454,15 +454,47 @@
 
     <section id="theming">
       <h2>Theming</h2>
-      <p>Skins are just bundles of these. Everything is a variable, and one hue re-tints the whole library. Put your overrides in plain CSS; it beats leicht's layers, so you never need <code>!important</code>.</p>
-      <pre><code>:root {
-  --l-hue: 150;          /* re-tints neutrals and primary */
-  --l-radius: .25rem;
-  --l-font: Geist, system-ui, sans-serif;
-  --l-corner: round;     /* opt out of squircles */
+      <p>Three ways in, depending on how much you want to change. Put your overrides in plain CSS — it sits outside leicht's layers, so it always wins and you never need <code>!important</code>.</p>
+
+      <h3>One brand colour</h3>
+      <p>The most common case: you have a hex value and need the library to match it. Everything else — surfaces, borders, muted text, focus rings, tags — is mixed from it.</p>
+      <pre><code>:root { --l-primary: #0a66c2 }</code></pre>
+      <p>Text drawn <em>on</em> that colour picks itself: where <code>contrast-color()</code> is supported, <code>--l-on-primary</code> resolves to black or white automatically. Elsewhere it falls back to the page background.</p>
+
+      <h3>One hue</h3>
+      <p>Re-tints the neutrals along with the accent, which keeps greys in the same family as the brand instead of leaving them cold.</p>
+      <pre><code>:root { --l-hue: 150 }   /* 0 red · 150 green · 257 blue · 300 violet */</code></pre>
+
+      <h3>A whole look</h3>
+      <p>Shape, type and depth are tokens too, so a skin is a block of them. This is the entire terminal skin, minus its two typographic flourishes:</p>
+      <pre><code>[data-skin="terminal"] {
+  --l-font: "Geist Mono", ui-monospace, monospace;
+  --l-bg: light-dark(oklch(93.5% 0 0), oklch(21% 0 0));
+  --l-primary: light-dark(oklch(45% .14 145), oklch(82% .18 145));
+  --l-radius: 0;
+  --l-shadow: 3px 3px 0 color-mix(in oklab, var(--l-fg) 20%, #0000);
+  --l-blur: none;      /* no glass */
+  --l-corner: round;   /* opt out of squircles */
 }</code></pre>
-      <p>Dark mode follows the OS. Force it with <code>&lt;html data-theme="dark"&gt;</code>.</p>
+
+      <h3>Contrast, and which knob is safe</h3>
+      <p><strong>Changing the hue can't break contrast.</strong> OKLCH lightness is perceptual, and the tokens hold it fixed, so the accent measures the same against the page at every hue — 4.86:1 in light mode whether you pick red, yellow, green or blue. That is the whole reason the palette is written in OKLCH rather than hex.</p>
+      <p><strong>A raw brand colour can.</strong> There, lightness is whatever the brand is, and some brands are simply not text colours. Measured against the light background:</p>
+      <table>
+        <thead><tr><th><code>--l-primary</code></th><th>on <code>--l-bg</code></th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>#111827</code></td><td>17.3:1</td><td>fine</td></tr>
+          <tr><td><code>#0a66c2</code></td><td>5.5:1</td><td>fine</td></tr>
+          <tr><td><code>#22c55e</code></td><td>2.2:1</td><td class="text-error">fails as text</td></tr>
+          <tr><td><code>#ffd400</code></td><td>1.4:1</td><td class="text-error">fails as text</td></tr>
+        </tbody>
+      </table>
+      <p>If your brand colour is light, keep it for fills and give links and small text a darker variant — <code>--l-primary: oklch(from #22c55e 45% c h)</code> keeps the hue and drops the lightness. Text drawn on the accent looks after itself through <code>contrast-color()</code>.</p>
+
+      <h3>Dark mode</h3>
+      <p>Follows the OS by default. Force it with <code>&lt;html data-theme="dark"&gt;</code>, and note that a skin rides on top: <code>data-skin</code> and <code>data-theme</code> compose.</p>
     </section>
+
   </main>
 
   <footer class="text-center">
@@ -541,7 +573,7 @@
 
     // syntax colours via the CSS Custom Highlight API: ranges, no <span>s
     const HTML = /(?<comment><!--[\s\S]*?-->)|(?<punct><\/?|\/?>)|(?<tag>(?<=<\/?)[\w-]+)|(?<string>"[^"]*")|(?<attr>(?<=\s)[\w-]+(?=[=\s>]))/g;
-    const CSSX = /(?<comment>\/\*[\s\S]*?\*\/)|(?<string>"[^"]*")|(?<at>@[\w-]+)|(?<prop>[\w-]+(?=:\s))|(?<num>(?<![\w-])-?\d*\.?\d+(?:%|[a-z]+)?)|(?<punct>[{}:;(),])/g;
+    const CSSX = /(?<comment>\/\*[\s\S]*?\*\/)|(?<string>"[^"]*")|(?<at>@[\w-]+)|(?<prop>[\w-]+(?=:\s))|(?<num>#[\da-fA-F]{3,8}|(?<![\w-])-?\d*\.?\d+(?:%|[a-z]+)?)|(?<punct>[{}:;(),])/g;
     if (CSS.highlights) {
       const groups = {};
       for (const code of document.querySelectorAll('pre code')) {

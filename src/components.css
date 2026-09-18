@@ -56,6 +56,9 @@
     & > :is(header, footer) { margin-inline: calc(-1 * var(--_p)); padding: .75rem var(--_p) }
     & > header { margin-block: calc(-1 * var(--_p)) var(--_p); border-block-end: 1px solid var(--l-border) }
     & > footer { margin-block: var(--_p) calc(-1 * var(--_p)); border-block-start: 1px solid var(--l-border) }
+    /* a borderless button has no edge to align, so its label should sit on the content edge
+       like the text above it, not 1.1em inside the padding box */
+    & > footer > .ghost:first-child { margin-inline-start: -1.1em }
   }
 
   /* ---- glass: the page header floats as a toolbar; overlays and .glass share the material ---- */
@@ -74,6 +77,7 @@
     backdrop-filter: var(--l-blur);
     box-shadow: var(--l-glass-edge), var(--l-shadow);
   }
+  :is(dialog, [popover]) { background: var(--l-glass-top) }
 
   /* callout. .error / .success repoint --l-primary, so the variants come for free */
   .alert {

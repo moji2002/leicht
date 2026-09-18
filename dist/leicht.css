@@ -29,6 +29,10 @@
 
     /* macOS-style vibrancy: translucent fill, lit top edge, faint rim */
     --l-glass: color-mix(in oklab, var(--l-bg) 62%, #0000);
+    /* WebKit does not apply backdrop-filter in the top layer, so dialogs, menus and the select
+       picker need a material that is legible with no blur behind it. Derived from --l-glass, so
+       a skin that makes the glass solid gets a solid top layer too. [measured, WebKit 26.5] */
+    --l-glass-top: color-mix(in oklab, var(--l-bg) 90%, var(--l-glass));
     --l-glass-edge: inset 0 1px light-dark(#fffd, #fff4), inset 0 0 0 1px light-dark(#fff8, #fff1);
     --l-blur: blur(20px) saturate(1.8);
     --l-corner: squircle;
@@ -293,6 +297,9 @@
     & > :is(header, footer) { margin-inline: calc(-1 * var(--_p)); padding: .75rem var(--_p) }
     & > header { margin-block: calc(-1 * var(--_p)) var(--_p); border-block-end: 1px solid var(--l-border) }
     & > footer { margin-block: var(--_p) calc(-1 * var(--_p)); border-block-start: 1px solid var(--l-border) }
+    /* a borderless button has no edge to align, so its label should sit on the content edge
+       like the text above it, not 1.1em inside the padding box */
+    & > footer > .ghost:first-child { margin-inline-start: -1.1em }
   }
 
   /* ---- glass: the page header floats as a toolbar; overlays and .glass share the material ---- */
@@ -311,6 +318,7 @@
     backdrop-filter: var(--l-blur);
     box-shadow: var(--l-glass-edge), var(--l-shadow);
   }
+  :is(dialog, [popover]) { background: var(--l-glass-top) }
 
   /* callout. .error / .success repoint --l-primary, so the variants come for free */
   .alert {
@@ -484,8 +492,9 @@
   @supports (background-clip: border-area) {
     :root { --l-rim: linear-gradient(light-dark(#fff, #fff8), light-dark(#fff3, #fff1) 40%, light-dark(#fff8, #fff3)) border-area }
     /* two rules: an unknown ::picker() would void a shared selector list */
-    :is(body > header, dialog, [popover]:not([popover=hint]), .glass) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass) padding-box }
-    ::picker(select) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass) padding-box }
+    :is(body > header, .glass) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass) padding-box }
+    :is(dialog, [popover]:not([popover=hint])) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass-top) padding-box }
+    ::picker(select) { border: 1px solid #0000; background: var(--l-rim), var(--l-glass-top) padding-box }
   }
 
   /* toolbar slides away while scrolling down, back on the way up; stays while its menu is open */
@@ -510,12 +519,8 @@
     @starting-style { opacity: 0; translate: 0 -.25rem }
   }
 
-  /* <select> with a real, stylable, glass dropdown.
-     Gated behind a second, Chromium-only probe on purpose: Safari 27 reports base-select support
-     but does not open the menu with these styles applied, and there is no way to feature-detect
-     that. Safari keeps its native select, which works. Re-test when WebKit's implementation lands
-     properly, then drop the border-area probe. */
-  @supports (appearance: base-select) and (background-clip: border-area) {
+  /* <select> with a real, stylable, glass dropdown. Chromium and WebKit both ship it. */
+  @supports (appearance: base-select) {
     select, ::picker(select) { appearance: base-select }
     select { display: flex; align-items: center; justify-content: space-between; gap: .5em }
     select::picker-icon { transition: rotate .2s }
@@ -527,15 +532,13 @@
       border: 0;
       border-radius: calc(var(--l-radius) * 1.5);
       corner-shape: var(--l-corner);
-      background: var(--l-glass);
+      background: var(--l-glass-top);
       backdrop-filter: var(--l-blur);
       box-shadow: var(--l-glass-edge), var(--l-shadow);
-      opacity: 0;
-      transition: .2s allow-discrete;
-      transition-property: opacity, display, overlay;
-    }
-    ::picker(select):popover-open {
-      opacity: 1;
+      /* the open state must be the BASE state, faded in from @starting-style. Hiding the picker
+         with opacity: 0 and revealing it on :popover-open leaves WebKit's picker open but
+         invisible, which reads as "the select does not work". [measured, WebKit 26.5] */
+      transition: opacity .2s, display .2s allow-discrete, overlay .2s allow-discrete;
       @starting-style { opacity: 0 }
     }
     option {

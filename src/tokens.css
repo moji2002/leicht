@@ -25,6 +25,10 @@
 
     /* macOS-style vibrancy: translucent fill, lit top edge, faint rim */
     --l-glass: color-mix(in oklab, var(--l-bg) 62%, #0000);
+    /* WebKit does not apply backdrop-filter in the top layer, so dialogs, menus and the select
+       picker need a material that is legible with no blur behind it. Derived from --l-glass, so
+       a skin that makes the glass solid gets a solid top layer too. [measured, WebKit 26.5] */
+    --l-glass-top: color-mix(in oklab, var(--l-bg) 90%, var(--l-glass));
     --l-glass-edge: inset 0 1px light-dark(#fffd, #fff4), inset 0 0 0 1px light-dark(#fff8, #fff1);
     --l-blur: blur(20px) saturate(1.8);
     --l-corner: squircle;

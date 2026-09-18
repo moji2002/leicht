@@ -29,7 +29,7 @@ native nesting [secondary: widely available mid-2026], `:has()`, `backdrop-filte
 | `corner-shape: squircle` | 139 | — | — | all rounded surfaces | [primary] MDN; Chromium-only |
 | `border-shape` + `shape()`, `polygon(round …)` | 147 / 150 | — | `shape()` 148 | tag label, tooltip tail | [primary] https://developer.chrome.com/release-notes/147 |
 | `background-clip: border-area` | 150 | — | pref | glass rim | [primary] https://developer.chrome.com/release-notes/150 |
-| `appearance: base-select`, `::picker(select)` | yes | 27 (broken with our styles) | pref | glass select dropdown | [primary] + [user report] |
+| `appearance: base-select`, `::picker(select)` | yes | 27 | pref | glass select dropdown | [primary]; works in WebKit [measured] |
 | scroll-driven animations | yes | 26.0 | **pref only** | toolbar turns to glass on scroll | [primary] https://webkit.org/blog/17333/webkit-features-in-safari-26-0/ |
 | `@container scroll-state(scrolled)` | 144 | — | — | toolbar hides while scrolling down | [primary] https://developer.chrome.com/release-notes/144 |
 | `popover=hint` + `interestfor` | 142 | hint in STP only | hint 149 | tooltips | [primary] |
@@ -99,8 +99,23 @@ former, which is the reason both are listed. [primary] MDN
 - **Never wrap a `<select>` in its `<label>`.** WebKit focuses the select but never opens the
   menu. [secondary] https://medium.com/browserquirks/browserquirk-programmatically-opening-a-select-box-4ca745a8468f
   The library styles the separate label + `for`/`id` pattern to match the wrapping one.
-- **`appearance: base-select` needs a second, Chromium-only probe.** Safari 27 reports support but
-  the menu does not open with our styles; the feature query can't tell the two apart. [user report]
+- **The `<select>` picker must default to *visible*.** Styling it as hidden
+  (`::picker(select) { opacity: 0 }`) and revealing it with `::picker(select):popover-open` leaves
+  WebKit's picker **open but invisible** — `select:open` is true, `::picker-icon` rotates, the
+  options have real geometry, and nothing is on screen. It reads exactly like "the select doesn't
+  work". Make the open state the base state and fade in from `@starting-style`.
+  [measured, WebKit 26.5 via Playwright]
+- **`background-clip: border-area` is not a Chromium probe.** An earlier version of this file
+  claimed the select block was gated Chromium-only by pairing `appearance: base-select` with
+  `background-clip: border-area`. WebKit shipped `border-area` in **Safari 18.2**, so that gate
+  never excluded Safari and the block applied there all along; the real bug was the opacity above.
+  [primary] https://webkit.org/blog/16214/background-clip-border-area/ ·
+  [primary] https://webkit.org/blog/18325/webkit-features-for-safari-27-0/
+- **WebKit does not apply `backdrop-filter` to the top layer.** Dialogs, `[popover]` menus and
+  `::picker(select)` get the background colour but no blur, so a 62%-opaque glass leaves the page
+  text legible straight through the menu. `--l-glass-top` (bg 90% mixed with the glass → ~96%
+  alpha) is used for anything in the top layer; the toolbar and `.glass` cards are not in the top
+  layer and keep the real material. [measured, WebKit 26.5]
 - **No CSS parser in the build.** lightningcss rejected `::picker(select):popover-open`, so the
   build only inlines imports and strips whitespace.
 - **Never put a pseudo-element in a shared selector list.** One unknown `::picker()` voids the

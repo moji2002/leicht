@@ -116,6 +116,14 @@
     "image": "https://moji2002.github.io/leicht/logo/og.png"
   }
   </script>
+  <script>
+    // restore the visitor's theme and skin before first paint, so there is no flash
+    try {
+      const t = localStorage.getItem('leicht-theme'), s = localStorage.getItem('leicht-skin');
+      if (t) document.documentElement.dataset.theme = t;
+      if (s) document.documentElement.dataset.skin = s;
+    } catch {}
+  </script>
 </head>
 <body>
   <a href="#main">Skip to content</a>
@@ -593,11 +601,16 @@
 
   <script>
     const root = document.documentElement;
+    const remember = (key, value) => {
+      try { value ? localStorage.setItem(key, value) : localStorage.removeItem(key); } catch {}
+    };
+
     theme.onclick = () => {
       const dark = root.dataset.theme
         ? root.dataset.theme === 'dark'
         : matchMedia('(prefers-color-scheme: dark)').matches;
       root.dataset.theme = dark ? 'light' : 'dark';
+      remember('leicht-theme', root.dataset.theme);
     };
 
     // skin switcher: toolbar menu and the buttons in the Skins section stay in sync
@@ -608,8 +621,10 @@
     };
     document.querySelectorAll('[data-set-skin]').forEach(b => b.addEventListener('click', () => {
       setSkin(b.dataset.setSkin);
+      remember('leicht-skin', b.dataset.setSkin);
       document.getElementById('skin-menu').hidePopover();
     }));
+    setSkin(root.dataset.skin || '');   // mark the restored skin as selected
 
     // show each live demo's markup underneath it
     for (const demo of document.querySelectorAll('[data-demo]')) {

@@ -9,6 +9,7 @@
     --l-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
     --l-width: 72rem;
     --l-aside: 15rem;
+    --l-table-max: none;
     --l-space: 1rem;
     /* One knob. Layout spacing derives from it, so --l-space: .75rem actually compacts the whole
        UI. Component interiors stay in em instead, so they scale with their own font size — which
@@ -608,6 +609,40 @@
       transform-origin: 0 50%;
     }
   }
+}
+
+@layer leicht.components {
+  /* ---- <figure><table>: semantic HTML's own table wrapper. The figure is the scrollport, so a
+     wide table scrolls inside its own frame instead of pushing the page sideways. ---- */
+  figure:has(> table) {
+    overflow: auto;
+    max-block-size: var(--l-table-max);
+    border: 1px solid var(--l-border);
+    border-radius: var(--l-radius);
+    corner-shape: var(--l-corner);
+    & > table { margin: 0 }
+    & > figcaption {
+      position: sticky;
+      inset-inline-start: 0;
+      padding: var(--l-space-sm) var(--l-space-md);
+      border-block-start: 1px solid var(--l-border);
+    }
+    /* Sticky only pays off when the figure has a height to scroll within: overflow-x: auto
+       forces overflow-y from visible to auto, so the figure — not the page — is the scrollport,
+       and a thead stuck to a box that never scrolls vertically does nothing. Hence
+       --l-table-max. [measured, Chromium 153] */
+    & thead th {
+      position: sticky;
+      inset-block-start: 0;
+      background: var(--l-bg);
+    }
+  }
+
+  tbody tr:hover { background: var(--l-surface) }
+
+  /* CSS cannot infer a column's alignment from its header, so numeric cells are marked. <data>
+     is the semantic way to say "this is a value"; .num is the escape hatch for a plain cell. */
+  :is(th, td).num, td:has(> data) { text-align: end }
 }
 
 /* Bleeding edge. Every rule here is an enhancement: a browser that doesn't

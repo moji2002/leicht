@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>table fixture</title>
+<link rel="stylesheet" href="../../dist/leicht.css">
+</head>
+<body>
+<main>
+  <h1>Data tables</h1>
+
+  <figure id="plain">
+    <table>
+      <thead>
+        <tr><th>Invoice</th><th>Customer</th><th>Status</th><th class="num">Amount</th><th>Value</th><th>Due</th><th>Owner</th><th>Currency</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>INV-2417</code></td><td>Kranzler &amp; Söhne Handels KG</td><td>Paid</td><td class="num">$12,400.00</td><td><data value="12400">$12,400.00</data></td><td>Sep 12, 2026</td><td>Mojtaba B.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2416</code></td><td>Blaulicht Medientechnik AG</td><td>Open</td><td class="num">$3,980.50</td><td><data value="3980">$3,980.50</data></td><td>Sep 22, 2026</td><td>Dana R.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2410</code></td><td>Acme Constructions GmbH</td><td>Overdue</td><td class="num">$1,120.00</td><td><data value="1120">$1,120.00</data></td><td>Sep 4, 2026</td><td>Mojtaba B.</td><td>USD</td></tr>
+        <tr><td><code>INV-2409</code></td><td>Ostwind Logistik</td><td>Draft</td><td class="num">$640.00</td><td><data value="640">$640.00</data></td><td>—</td><td>Dana R.</td><td>USD</td></tr>
+        <tr><td><code>INV-2401</code></td><td>Sonnenschein Energie GmbH</td><td>Paid</td><td class="num">$22,150.00</td><td><data value="22150">$22,150.00</data></td><td>Aug 30, 2026</td><td>Dana R.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2398</code></td><td>Hafenkontor Bremen</td><td>Paid</td><td class="num">$890.00</td><td><data value="890">$890.00</data></td><td>Aug 28, 2026</td><td>Mojtaba B.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2390</code></td><td>Westfalen Maschinenbau</td><td>Open</td><td class="num">$5,400.00</td><td><data value="5400">$5,400.00</data></td><td>Sep 30, 2026</td><td>Dana R.</td><td>USD</td></tr>
+      </tbody>
+    </table>
+    <figcaption>Recent invoices</figcaption>
+  </figure>
+
+  <h2>Capped with --l-table-max</h2>
+  <div style="--l-table-max:14rem">
+    <figure id="capped">
+      <table>
+      <thead>
+        <tr><th>Invoice</th><th>Customer</th><th>Status</th><th class="num">Amount</th><th>Value</th><th>Due</th><th>Owner</th><th>Currency</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>INV-2417</code></td><td>Kranzler &amp; Söhne Handels KG</td><td>Paid</td><td class="num">$12,400.00</td><td><data value="12400">$12,400.00</data></td><td>Sep 12, 2026</td><td>Mojtaba B.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2416</code></td><td>Blaulicht Medientechnik AG</td><td>Open</td><td class="num">$3,980.50</td><td><data value="3980">$3,980.50</data></td><td>Sep 22, 2026</td><td>Dana R.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2410</code></td><td>Acme Constructions GmbH</td><td>Overdue</td><td class="num">$1,120.00</td><td><data value="1120">$1,120.00</data></td><td>Sep 4, 2026</td><td>Mojtaba B.</td><td>USD</td></tr>
+        <tr><td><code>INV-2409</code></td><td>Ostwind Logistik</td><td>Draft</td><td class="num">$640.00</td><td><data value="640">$640.00</data></td><td>—</td><td>Dana R.</td><td>USD</td></tr>
+        <tr><td><code>INV-2401</code></td><td>Sonnenschein Energie GmbH</td><td>Paid</td><td class="num">$22,150.00</td><td><data value="22150">$22,150.00</data></td><td>Aug 30, 2026</td><td>Dana R.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2398</code></td><td>Hafenkontor Bremen</td><td>Paid</td><td class="num">$890.00</td><td><data value="890">$890.00</data></td><td>Aug 28, 2026</td><td>Mojtaba B.</td><td>EUR</td></tr>
+        <tr><td><code>INV-2390</code></td><td>Westfalen Maschinenbau</td><td>Open</td><td class="num">$5,400.00</td><td><data value="5400">$5,400.00</data></td><td>Sep 30, 2026</td><td>Dana R.</td><td>USD</td></tr>
+      </tbody>
+    </table>
+    </figure>
+  </div>
+
+  <h2>A table outside a figure must stay bare</h2>
+  <table id="naked">
+    <thead><tr><th>One</th><th>Two</th></tr></thead>
+    <tbody><tr><td>a</td><td>b</td></tr></tbody>
+  </table>
+
+  <h2>A figure that is not a table must stay a figure</h2>
+  <figure id="imagefig">
+    <img src="/logo/leicht-mark.svg" alt="" width="48" height="48">
+    <figcaption>An ordinary image figure</figcaption>
+  </figure>
+</main>
+</body>
+</html>

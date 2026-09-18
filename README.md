@@ -17,27 +17,6 @@ npm i leicht
 
 **[Docs and live demos →](https://moji2002.github.io/leicht/)**
 
-[![The leicht docs page in light mode](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/hero.png)](https://moji2002.github.io/leicht/)
-
-## What you get without writing a single class
-
-Headings, links, lists, tables, `<code>`/`<pre>`, `<blockquote>`, `<details>`, forms and
-fieldsets, `<nav>`, `<article>` as a card, `<dialog>` as a modal, `[popover]` menus anchored to
-their button, `popover="hint"` tooltips, `<progress>`, `<meter>`, and a checkbox with
-`role="switch"` as a real toggle.
-
-## And a few classes when you need them
-
-| | |
-|---|---|
-| `.row` / `.col-1`…`.col-12` | 12-column grid on CSS grid; a bare `.row` splits evenly |
-| `.card` | what `<article>` already gets, on anything |
-| `.button`, `.secondary`, `.outline`, `.ghost`, `.error`, `.success` | variants repoint variables, so they combine |
-| `.alert` | callout; takes the same variants |
-| `.group` | join buttons into one segmented bar |
-| `.tag`, `.carousel`, `.glass`, `.liquid` | badge, scroll-snap list with dots, and the two glass materials |
-| `.flex`, `.stack`, `.text-center`, `.text-muted`, `.hide-sm`, `.sr-only`, `.container` | utilities |
-
 ## Screenshots
 
 Plain HTML, no classes — light and dark follow the OS:
@@ -58,6 +37,25 @@ Six skins in an optional 1.6 kB file — identical markup in every panel, only `
 `.liquid` stacks refraction, tint and a specular rim on pseudo-elements, with live controls in the docs:
 
 ![The liquid glass playground](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/liquid.jpg)
+
+## What you get without writing a single class
+
+Headings, links, lists, tables, `<code>`/`<pre>`, `<blockquote>`, `<details>`, forms and
+fieldsets, `<nav>`, `<article>` as a card, `<dialog>` as a modal, `[popover]` menus anchored to
+their button, `popover="hint"` tooltips, `<progress>`, `<meter>`, and a checkbox with
+`role="switch"` as a real toggle.
+
+## And a few classes when you need them
+
+| | |
+|---|---|
+| `.row` / `.col-1`…`.col-12` | 12-column grid on CSS grid; a bare `.row` splits evenly |
+| `.card` | what `<article>` already gets, on anything |
+| `.button`, `.secondary`, `.outline`, `.ghost`, `.error`, `.success` | variants repoint variables, so they combine |
+| `.alert` | callout; takes the same variants |
+| `.group` | join buttons into one segmented bar |
+| `.tag`, `.carousel`, `.glass`, `.liquid` | badge, scroll-snap list with dots, and the two glass materials |
+| `.flex`, `.stack`, `.text-center`, `.text-muted`, `.hide-sm`, `.sr-only`, `.container` | utilities |
 
 ## Theming
 

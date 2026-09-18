@@ -69,8 +69,10 @@
     padding: var(--l-space) clamp(1rem, 4vw, 2rem);
   }
   body > main, .container { container-type: inline-size }
-  :is(body > main, article, .card, dialog, [popover]) > :first-child { margin-block-start: 0 }
-  :is(article, .card, dialog, [popover], header) > :last-child { margin-block-end: 0 }
+  /* both ends, and the same list on both: a heading inside a card's <header> kept its 1.6em
+     top margin, so the title sat low in the bar it is centred in */
+  :is(body > main, article, .card, dialog, [popover], header, footer) > :first-child { margin-block-start: 0 }
+  :is(article, .card, dialog, [popover], header, footer) > :last-child { margin-block-end: 0 }
 
   h1, h2, h3, h4, h5, h6 { margin-block: 1.6em .5em; line-height: 1.2; text-wrap: balance }
   h1 { font-size: 2.25rem }
@@ -271,6 +273,8 @@
   @container (width < 40rem) {
     .row > :is([class*=col-], [data-span]) { --span: 12 }
     .row > :is(.col-1, .col-2, .col-3, .col-4, .col-5) { --span: 6 }
+    /* a bare .row has no spans to re-point, so the flow itself is the only thing left to change */
+    .row:not(:has(> :is([class*=col-], [data-span]))) { grid-auto-flow: row }
   }
 
   nav {
@@ -279,7 +283,8 @@
     align-items: center;
     justify-content: space-between;
     gap: .5rem var(--l-space);
-    & ul { display: flex; flex-wrap: wrap; align-items: center; gap: inherit; margin: 0; padding: 0; list-style: none }
+    /* ol too: a breadcrumb is an ordered list, and it rendered as "1. 2. 3." without this */
+    & :is(ul, ol) { display: flex; flex-wrap: wrap; align-items: center; gap: inherit; margin: 0; padding: 0; list-style: none }
     & a:not(.button) {
       color: inherit;
       text-decoration: none;

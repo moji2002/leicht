@@ -67,9 +67,13 @@
     "build": "node build.js",
     "dev": "node build.js --watch",
     "check:package": "npm pack --dry-run --ignore-scripts",
+    "test": "node build.js && node test/contrast.test.mjs && playwright test",
+    "test:e2e": "playwright test",
+    "test:update": "playwright test --update-snapshots",
     "prepublishOnly": "node build.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@untitledui/icons": "^0.0.22"
   }
 }

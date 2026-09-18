@@ -179,7 +179,7 @@
 
   <main id="main">
     <section class="hero text-center">
-      <h1>A <em>tiny</em> (~5.2kb) CSS library</h1>
+      <h1>A <em>tiny</em> (~5.6kb) CSS library</h1>
       <p class="text-muted">Write plain HTML and it's already styled, using only modern CSS: nesting, cascade layers, <code>light-dark()</code>, squircles and glass.</p>
       <p class="flex" style="justify-content: center"><a class="button" href="#start">Get started <svg aria-hidden="true" data-flip><use href="#i-arrow"/></svg></a> <a class="button secondary" href="#grid"><svg aria-hidden="true"><use href="#i-book"/></svg> Docs</a></p>
     </section>
@@ -187,7 +187,7 @@
     <section id="features">
       <h2>Features</h2>
       <ul class="features">
-        <li>~5.2kb minified + gzipped</li>
+        <li>~5.6kb minified + gzipped</li>
         <li>No preprocessor, no build step to use</li>
         <li>Classless: semantic HTML just works</li>
         <li>12-column grid on CSS grid</li>
@@ -199,20 +199,22 @@
         <li>Degrades gracefully in every browser</li>
         <li>Print stylesheet, skip link &amp; high-contrast support</li>
         <li>RTL-ready: logical properties throughout</li>
-        <li>Six skins in an optional 1.4&nbsp;kb file</li>
+        <li>Six skins in an optional 1.6&nbsp;kb file</li>
       </ul>
     </section>
 
     <section id="start">
       <h2>Getting started</h2>
-      <p>Link the stylesheet. That's it.</p>
-      <pre><code>&lt;link rel="stylesheet" href="leicht.min.css"&gt;</code></pre>
-      <p>Or install it:</p>
+      <p>One line from a CDN. Nothing to install, nothing to build:</p>
+      <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leicht@0.1/dist/leicht.min.css"&gt;</code></pre>
+      <p>The six skins are a second, optional file (1.6&nbsp;kb) — add it only if you want them:</p>
+      <pre><code>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leicht@0.1/dist/leicht-themes.min.css"&gt;</code></pre>
+      <p>Or install from npm and let your bundler take it:</p>
       <pre><code>npm i leicht</code></pre>
-      <p>…and link <code>node_modules/leicht/dist/leicht.min.css</code>, or import it:</p>
       <pre><code>@import "leicht/min";
 @import "leicht/themes/min";   /* optional skins */</code></pre>
-      <p>A boilerplate page:</p>
+      <p>With no bundler, link <code>node_modules/leicht/dist/leicht.min.css</code> directly — or download that file and self-host it. There is no build step and no JavaScript either way.</p>
+      <p>Then write ordinary HTML:</p>
       <pre><code>&lt;!doctype html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
@@ -513,7 +515,7 @@
 
     <section id="skins">
       <h2>Skins</h2>
-      <p>A skin is a block of token overrides in an optional second file (<code>leicht-themes.css</code>, 1.4&nbsp;kb gzipped for all six). Set <code>&lt;html data-skin="cyber"&gt;</code> — light and dark still work on top.</p>
+      <p>A skin is a block of token overrides in an optional second file (<code>leicht-themes.css</code>, 1.6&nbsp;kb gzipped for all six). Set <code>&lt;html data-skin="cyber"&gt;</code> — light and dark still work on top.</p>
       <p class="flex" role="group" aria-label="Choose a skin">
         <button type="button" data-set-skin="">Default</button>
         <button type="button" class="secondary" data-set-skin="cyber">Cyber</button>

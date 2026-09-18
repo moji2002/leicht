@@ -8,7 +8,7 @@ A tiny classless-first CSS library, written in modern CSS. Link one file, write 
 and it's styled. **5.6 kB gzipped**, no build step, no dependencies.
 
 ```html
-<link rel="stylesheet" href="leicht.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leicht@0.1/dist/leicht.min.css">
 ```
 
 ```bash
@@ -16,6 +16,8 @@ npm i leicht
 ```
 
 **[Docs and live demos →](https://moji2002.github.io/leicht/)**
+
+[![The leicht docs page in light mode](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/hero.png)](https://moji2002.github.io/leicht/)
 
 ## What you get without writing a single class
 
@@ -35,6 +37,27 @@ their button, `popover="hint"` tooltips, `<progress>`, `<meter>`, and a checkbox
 | `.group` | join buttons into one segmented bar |
 | `.tag`, `.carousel`, `.glass`, `.liquid` | badge, scroll-snap list with dots, and the two glass materials |
 | `.flex`, `.stack`, `.text-center`, `.text-muted`, `.hide-sm`, `.sr-only`, `.container` | utilities |
+
+## Screenshots
+
+Plain HTML, no classes — light and dark follow the OS:
+
+| | |
+|---|---|
+| ![Light mode](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/hero.png) | ![Dark mode](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/hero-dark.png) |
+
+Every variant is a repointed variable, so they combine, and the markup underneath each demo is
+generated from the demo itself:
+
+![Button variants and the markup that produced them](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/buttons.png)
+
+Six skins in an optional 1.6 kB file — identical markup in every panel, only `data-skin` changes:
+
+![The six skins side by side](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/skins.png)
+
+`.liquid` stacks refraction, tint and a specular rim on pseudo-elements, with live controls in the docs:
+
+![The liquid glass playground](https://raw.githubusercontent.com/moji2002/leicht/main/docs/screenshots/liquid.jpg)
 
 ## Theming
 

@@ -188,5 +188,7 @@ Suggested entry line:
 
 - [ ] Upload `logo/og.png` as the GitHub social preview (see top).
 - [ ] Record a 10-second screen capture of the skin switcher and the liquid glass playground.
-      Every channel above wants it and it's the single most persuasive asset.
+      Every channel above wants it and it's the single most persuasive asset. Still shots already
+      exist in `docs/screenshots/` (hero light and dark, buttons, the six skins, liquid glass) —
+      attach `skins.png` to the Reddit and X posts until the recording exists.
 - [ ] Re-read the docs site on a phone — most HN traffic is mobile.

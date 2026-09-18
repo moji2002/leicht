@@ -73,8 +73,8 @@
     select:open::picker-icon { rotate: 180deg }
     ::picker(select) {
       position-try-order: normal;
-      margin-block: .35rem;
-      padding: .35rem;
+      margin-block: var(--l-space-xs);
+      padding: var(--l-space-xs);
       border: 0;
       border-radius: calc(var(--l-radius) * 1.5);
       corner-shape: var(--l-corner);

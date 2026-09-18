@@ -5,6 +5,14 @@
     --l-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
     --l-width: 72rem;
     --l-space: 1rem;
+    /* One knob. Layout spacing derives from it, so --l-space: .75rem actually compacts the whole
+       UI. Component interiors stay in em instead, so they scale with their own font size — which
+       is what lets .sm/.lg resize a control with a single declaration. */
+    --l-space-xs: calc(var(--l-space) * .25);
+    --l-space-sm: calc(var(--l-space) * .5);
+    --l-space-md: calc(var(--l-space) * .75);
+    --l-space-lg: calc(var(--l-space) * 1.5);
+    --l-space-xl: calc(var(--l-space) * 2);
     --l-radius: .5rem;
     --l-hue: 257;
 

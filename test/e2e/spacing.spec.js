@@ -76,9 +76,11 @@ test('a row of cards does not double its bottom margin', async ({ page }) => {
   await page.goto('/test/fixtures/density.html');
   const gap = await page.evaluate(() => {
     const row = document.getElementById('row').getBoundingClientRect();
-    const card = document.querySelector('#row .card').getBoundingClientRect();
-    // the row's own box must end where its last card ends: no extra card margin inside
-    return row.bottom - card.bottom;
+    // the LAST card: below 40rem the row stacks, so the first card is not the bottom one
+    const cards = [...document.querySelectorAll('#row .card')];
+    const last = cards[cards.length - 1].getBoundingClientRect();
+    // the row's box must end where its last card ends: no extra card margin inside
+    return row.bottom - last.bottom;
   });
   expect(gap).toBeLessThan(1);
 });

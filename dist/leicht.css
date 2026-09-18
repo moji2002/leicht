@@ -9,6 +9,14 @@
     --l-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
     --l-width: 72rem;
     --l-space: 1rem;
+    /* One knob. Layout spacing derives from it, so --l-space: .75rem actually compacts the whole
+       UI. Component interiors stay in em instead, so they scale with their own font size — which
+       is what lets .sm/.lg resize a control with a single declaration. */
+    --l-space-xs: calc(var(--l-space) * .25);
+    --l-space-sm: calc(var(--l-space) * .5);
+    --l-space-md: calc(var(--l-space) * .75);
+    --l-space-lg: calc(var(--l-space) * 1.5);
+    --l-space-xl: calc(var(--l-space) * 2);
     --l-radius: .5rem;
     --l-hue: 257;
 
@@ -72,7 +80,8 @@
   body > :is(header, main, footer), .container {
     max-inline-size: var(--l-width);
     margin-inline: auto;
-    padding: var(--l-space) clamp(1rem, 4vw, 2rem);
+    /* was var(--l-space): 1rem top against up to 2rem sides read visibly tight */
+    padding: var(--l-space-lg) clamp(1rem, 4vw, 2rem);
   }
   body > main, .container { container-type: inline-size }
   /* both ends, and the same list on both: a heading inside a card's <header> kept its 1.6em
@@ -87,6 +96,10 @@
   h4 { font-size: 1.125rem }
   p, ul, ol, dl, pre, blockquote, table, figure, details, fieldset { margin: 0; margin-block-end: var(--l-space) }
   p, li { text-wrap: pretty }
+  /* 1.6em is prose rhythm; after a component the gap is already carried by its own margin */
+  :is(article, .card, figure, table, pre, details, .row, .alert) + :is(h1, h2, h3, h4, h5, h6) {
+    margin-block-start: var(--l-space-lg);
+  }
   small, figcaption, thead, body > footer { color: var(--l-muted) }
   figcaption, thead, body > footer { font-size: .875rem }
 
@@ -113,7 +126,7 @@
   ::highlight(l-string), ::highlight(l-num) { color: var(--l-syn-3) }
   ::highlight(l-comment), ::highlight(l-punct) { color: var(--l-muted) }
   blockquote { padding-inline-start: var(--l-space); border-inline-start: 3px solid var(--l-primary); color: var(--l-muted) }
-  hr { margin-block: calc(var(--l-space) * 2); border: 0; border-block-start: 1px solid var(--l-border) }
+  hr { margin-block: var(--l-space-xl); border: 0; border-block-start: 1px solid var(--l-border) }
   mark { padding-inline: .2em; border-radius: .2em; background: color-mix(in oklab, var(--l-primary) 25%, #0000); color: inherit }
   img, video { max-inline-size: 100%; block-size: auto; vertical-align: middle }
 
@@ -121,12 +134,12 @@
   th, td { padding: .6em .75em; border-block-end: 1px solid var(--l-border); text-align: start }
 
   details {
-    padding: .5em var(--l-space);
+    padding: var(--l-space-sm) var(--l-space);
     border: 1px solid var(--l-border);
     border-radius: var(--l-radius);
     interpolate-size: allow-keywords;
     & > summary { cursor: pointer; font-weight: 600 }
-    &[open] > summary { margin-block-end: .5em }
+    &[open] > summary { margin-block-end: var(--l-space-sm) }
     &::details-content { block-size: 0; overflow: clip; transition: block-size .2s, content-visibility .2s allow-discrete }
     &[open]::details-content { block-size: auto }
   }
@@ -198,6 +211,9 @@
       &:dir(rtl)::after { translate: -.95em 0 }
     }
   }
+  /* a hint sits under its field, not wedged against the next label */
+  :is(input, select, textarea) + small { display: block; margin-block-end: var(--l-space) }
+
   :disabled { opacity: .5; cursor: not-allowed }
 
   label {
@@ -290,7 +306,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: .5rem var(--l-space);
+    gap: var(--l-space-sm) var(--l-space);
     /* ol too: a breadcrumb is an ordered list, and it rendered as "1. 2. 3." without this */
     & :is(ul, ol) { display: flex; flex-wrap: wrap; align-items: center; gap: inherit; margin: 0; padding: 0; list-style: none }
     & a:not(.button) {
@@ -301,28 +317,43 @@
   }
 
   article, .card {
-    --_p: 1.25rem;
+    --_p: var(--l-space-lg);
     margin-block-end: var(--l-space);
     padding: var(--_p);
     border: 1px solid var(--l-border);
     border-radius: calc(var(--l-radius) * 1.5);
     background: var(--l-surface);
-    & > :is(header, footer) { margin-inline: calc(-1 * var(--_p)); padding: .75rem var(--_p) }
+    & > :is(header, footer) { margin-inline: calc(-1 * var(--_p)); padding: var(--l-space-md) var(--_p) }
     & > header { margin-block: calc(-1 * var(--_p)) var(--_p); border-block-end: 1px solid var(--l-border) }
     & > footer { margin-block: var(--_p) calc(-1 * var(--_p)); border-block-start: 1px solid var(--l-border) }
     /* a borderless button has no edge to align, so its label should sit on the content edge
        like the text above it, not 1.1em inside the padding box */
     & > footer > .ghost:first-child { margin-inline-start: -1.1em }
+    /* a card title with a trailing action or menu is the most common card there is */
+    & > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--l-space-sm);
+      /* a heading's 1.6em top margin is prose rhythm; inside a header it is just a gap */
+      & :is(h1, h2, h3, h4, h5, h6) { margin-block: 0 }
+    }
   }
+
+  /* .row owns the gutter and the bottom margin; a card inside must not add a second one.
+     This sits after `article, .card` deliberately: at equal specificity source order decides,
+     and the reset inside .row above is overridden by the card's own margin. */
+  .row > * { margin-block: 0 }
+  .row > * > :last-child { margin-block-end: 0 }
 
   /* ---- glass: the page header floats as a toolbar; overlays and .glass share the material ---- */
   body > header {
     inline-size: min(var(--l-width), 100% - 1rem);
     position: sticky;
-    inset-block-start: .5rem;
+    inset-block-start: var(--l-space-sm);
     z-index: 1;
-    margin-block: .5rem;
-    padding-block: .5rem;
+    margin-block: var(--l-space-sm);
+    padding-block: var(--l-space-sm);
     border-radius: calc(var(--l-radius) * 1.5);
   }
   :is(body > header, dialog, [popover], .glass) {
@@ -337,9 +368,9 @@
   .alert {
     display: flex;
     align-items: start;
-    gap: .75em;
+    gap: var(--l-space-md);
     margin-block-end: var(--l-space);
-    padding: .85em 1em;
+    padding: var(--l-space-md) var(--l-space);
     border: 1px solid color-mix(in oklab, var(--l-primary) 35%, #0000);
     border-radius: var(--l-radius);
     corner-shape: var(--l-corner);
@@ -381,7 +412,7 @@
     scroll-marker-group: after;
     scrollbar-width: none;
     & > * { flex: 0 0 min(100%, 24rem); scroll-snap-align: center; margin: 0 }
-    &::scroll-marker-group { display: flex; justify-content: center; gap: .5rem; padding-block-start: .9rem }
+    &::scroll-marker-group { display: flex; justify-content: center; gap: var(--l-space-sm); padding-block-start: var(--l-space-md) }
     & > *::scroll-marker {
       content: "";
       inline-size: .55rem;
@@ -395,7 +426,7 @@
 
   /* dialog and popover share one enter/exit transition */
   dialog, [popover] {
-    padding: 1.5rem;
+    padding: var(--l-space-lg);
     border-radius: calc(var(--l-radius) * 2);
     color: var(--l-fg);
     opacity: 0;
@@ -407,7 +438,7 @@
       scale: 1;
       @starting-style { opacity: 0; scale: .96 }
     }
-    & footer { display: flex; justify-content: end; gap: .5rem }
+    & footer { display: flex; justify-content: end; gap: var(--l-space-sm) }
   }
   dialog {
     inline-size: min(32rem, 100% - 2rem);
@@ -431,7 +462,7 @@
      popover wrapping one — a header and a list, say. */
   :is(menu, ul)[popover], [popover]:has(> :is(menu, ul)) {
     min-inline-size: 12rem;
-    padding: .35rem;
+    padding: var(--l-space-xs);
     & :is(ul, menu) { margin: 0; padding: 0; list-style: none }
     & :is(a, button) {
       --_bg: #0000;
@@ -453,7 +484,7 @@
     /* not scoped to :popover-open: the closing frame must stay anchored */
     @supports (position-area: block-end) {
       inset: auto;
-      margin: .35rem 0 0;
+      margin: var(--l-space-xs) 0 0;
       position-anchor: auto;
       position-area: block-end span-inline-end;
       position-try-fallbacks: flip-block, flip-inline;
@@ -552,8 +583,8 @@
     select:open::picker-icon { rotate: 180deg }
     ::picker(select) {
       position-try-order: normal;
-      margin-block: .35rem;
-      padding: .35rem;
+      margin-block: var(--l-space-xs);
+      padding: var(--l-space-xs);
       border: 0;
       border-radius: calc(var(--l-radius) * 1.5);
       corner-shape: var(--l-corner);

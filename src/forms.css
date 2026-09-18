@@ -64,6 +64,9 @@
       &:dir(rtl)::after { translate: -.95em 0 }
     }
   }
+  /* a hint sits under its field, not wedged against the next label */
+  :is(input, select, textarea) + small { display: block; margin-block-end: var(--l-space) }
+
   :disabled { opacity: .5; cursor: not-allowed }
 
   label {

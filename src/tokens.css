@@ -4,6 +4,7 @@
     --l-font: Geist, "Inter Variable", Inter, system-ui, sans-serif;
     --l-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
     --l-width: 72rem;
+    --l-aside: 15rem;
     --l-space: 1rem;
     /* One knob. Layout spacing derives from it, so --l-space: .75rem actually compacts the whole
        UI. Component interiors stay in em instead, so they scale with their own font size — which

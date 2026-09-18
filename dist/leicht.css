@@ -8,6 +8,7 @@
     --l-font: Geist, "Inter Variable", Inter, system-ui, sans-serif;
     --l-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
     --l-width: 72rem;
+    --l-aside: 15rem;
     --l-space: 1rem;
     /* One knob. Layout spacing derives from it, so --l-space: .75rem actually compacts the whole
        UI. Component interiors stay in em instead, so they scale with their own font size — which
@@ -504,6 +505,107 @@
     @supports (border-shape: polygon(round 1px, 0 0, 1px 0, 0 1px)) {
       padding-inline: .9em .6em;
       border-shape: polygon(round 3px, .55em 0, 100% 0, 100% 100%, .55em 100%, 0 50%);
+    }
+  }
+}
+
+/* The application layer: a shell, a data table, and the chrome an app needs that a document does
+   not. Everything here is gated — a page with no <aside>, no <figure><table>, no [role=tablist]
+   and no <output> is byte-for-byte unaffected. */
+
+@layer leicht.components {
+  /* ---- shell. Built from body's own children, so every body > … rule keeps matching: the glass
+     toolbar, the page gutters and the muted footer all still apply. ---- */
+  body:has(> aside) {
+    --l-width: none;
+    display: grid;
+    grid-template-columns: var(--l-aside) 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+  body:has(> aside) > aside { grid-area: 1 / 1 / -1 / 2 }
+  body:has(> aside) > :is(header, main, footer) {
+    grid-column: 2;
+    max-inline-size: none;
+    /* body > main sets margin-inline: auto, and auto margins beat justify-self: stretch — the
+       content column collapses to its min-content width without this. [measured, Chromium 153] */
+    margin-inline: 0;
+  }
+  body:has(> aside) > header {
+    grid-row: 1;
+    /* inline-size: min(var(--l-width), …) is invalid once --l-width is none, so reset it here
+       rather than relying on the cascade */
+    inline-size: auto;
+  }
+  body:has(> aside) > main { grid-row: 2 }
+  body:has(> aside) > footer { grid-row: 3 }
+
+  body > aside {
+    padding: var(--l-space);
+    border-inline-end: 1px solid var(--l-border);
+    background: var(--l-surface);
+    & > :first-child { margin-block-start: 0 }
+  }
+
+  /* a sidebar nav is vertical, and its rows are targets rather than inline links */
+  aside nav {
+    display: block;
+    & :is(ul, ol) { display: grid; gap: var(--l-space-xs); inline-size: 100% }
+    & a:not(.button) {
+      display: flex;
+      align-items: center;
+      gap: .6em;
+      padding: .45em .6em;
+      border-radius: var(--l-radius);
+      corner-shape: var(--l-corner);
+      &:hover { background: color-mix(in oklab, var(--l-fg) 6%, #0000); color: inherit }
+      &[aria-current] { background: color-mix(in oklab, var(--l-primary) 14%, #0000) }
+      & svg { inline-size: 1.1em; block-size: 1.1em; flex: none; opacity: .75 }
+    }
+  }
+
+  /* ---- <aside popover>: one element, two behaviours. Wide, it is a static column and the
+     popover material is unset; narrow, it is an off-canvas drawer the UA opens, light-dismisses
+     and transitions for free from a popovertarget button — no script.
+     Keep this beside the [popover] rules in components.css: anything added there must be unset
+     here, or the desktop column silently inherits it. ---- */
+  @media (width >= 60rem) {
+    body > aside[popover] {
+      display: block;
+      position: static;
+      inline-size: auto;
+      block-size: auto;
+      max-inline-size: none;
+      max-block-size: none;
+      margin: 0;
+      padding: var(--l-space);
+      border: 0;
+      border-inline-end: 1px solid var(--l-border);
+      border-radius: 0;
+      background: var(--l-surface);
+      backdrop-filter: none;
+      box-shadow: none;
+      opacity: 1;
+      scale: 1;
+      overlay: none;
+    }
+  }
+  @media (width < 60rem) {
+    body:has(> aside) { grid-template-columns: 1fr }
+    body:has(> aside) > :is(header, main, footer) { grid-column: 1 }
+    body > aside[popover] {
+      position: fixed;
+      inset: 0 auto 0 0;
+      inline-size: 16rem;
+      max-inline-size: 80vw;
+      /* the UA gives a popover height: fit-content, which defeats the inset pair and leaves the
+         drawer floating at the top as a box [measured, Chromium 153] */
+      block-size: auto;
+      max-block-size: none;
+      margin: 0;
+      overflow-y: auto;
+      border-radius: 0;
+      border-inline-end: 1px solid var(--l-border);
+      transform-origin: 0 50%;
     }
   }
 }

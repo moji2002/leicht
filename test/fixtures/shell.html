@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>shell fixture</title>
+<link rel="stylesheet" href="../../dist/leicht.css">
+</head>
+<body>
+<a href="#main">Skip to content</a>
+
+<aside id="nav" popover>
+  <strong>Northwind</strong>
+  <nav>
+    <ul>
+      <li><a href="#main" aria-current="page" id="nav-current">Overview</a></li>
+      <li><a href="#main" id="nav-other">Invoices</a></li>
+      <li><a href="#main">Customers</a></li>
+    </ul>
+  </nav>
+</aside>
+
+<header>
+  <nav>
+    <button popovertarget="nav" class="ghost hide-lg" id="menu-btn" aria-label="Menu">☰</button>
+    <strong>Billing</strong>
+    <button class="secondary">Export</button>
+  </nav>
+</header>
+
+<main id="main">
+  <h1>Shell</h1>
+  <p>The sidebar is a static column at 60rem and wider, and a drawer below it.</p>
+  <p style="block-size:120vh">tall, to test the sticky toolbar</p>
+</main>
+
+<footer><small>footer</small></footer>
+</body>
+</html>

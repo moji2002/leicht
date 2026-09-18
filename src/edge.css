@@ -54,11 +54,12 @@
   .row > [data-span] { --span: attr(data-span type(<integer>)); grid-column: span var(--span, 12) }
 
   @supports (min-inline-size: anchor-size(width)) {
-    [popover]:not([popover=hint]) { min-inline-size: max(12rem, anchor-size(width)) }
+    /* menus only: a panel must not be squeezed to its invoker's width */
+    :is(menu, ul)[popover], [popover]:has(> :is(menu, ul)) { min-inline-size: max(12rem, anchor-size(width)) }
   }
 
   /* menu items cascade in */
-  :popover-open li {
+  :is(:is(menu, ul)[popover], [popover]:has(> :is(menu, ul))):popover-open li {
     transition: opacity .2s, translate .2s;
     transition-delay: calc(sibling-index() * 25ms);
     @starting-style { opacity: 0; translate: 0 -.25rem }

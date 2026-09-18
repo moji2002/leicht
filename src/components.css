@@ -163,13 +163,24 @@
     &::backdrop { background: #0004; backdrop-filter: blur(3px) }
   }
 
-  /* popover menu, anchored to its invoker; unsupported browsers centre it */
+  /* Every popover gets the material, the origin and the radius. Menu geometry is opted into by
+     having a <menu> or <ul> child: a popover holding a form is a panel, and forcing its buttons
+     into full-width menu rows made its footer unstyleable from outside the layer. */
   [popover] {
-    min-inline-size: 12rem;
-    padding: .35rem;
     transform-origin: 0 0;
     &:dir(rtl) { transform-origin: 100% 0 }
     border-radius: calc(var(--l-radius) * 1.5);
+  }
+
+  /* a panel is centred by the UA; give it room to hold a form */
+  [popover]:not([popover=hint], menu, ul, :has(> :is(menu, ul))) { padding: var(--l-space) }
+
+  /* popover menu, anchored to its invoker; unsupported browsers centre it.
+     Two shapes count as a menu: <menu popover> itself, which is the idiomatic markup, and a
+     popover wrapping one — a header and a list, say. */
+  :is(menu, ul)[popover], [popover]:has(> :is(menu, ul)) {
+    min-inline-size: 12rem;
+    padding: .35rem;
     & :is(ul, menu) { margin: 0; padding: 0; list-style: none }
     & :is(a, button) {
       --_bg: #0000;

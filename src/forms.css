@@ -110,6 +110,34 @@
     &:disabled { filter: none; translate: none }
   }
 
+  /* control sizes. Interiors are em, so one declaration resizes the whole control. */
+  :is(button, .button, input, select, textarea).sm { font-size: .875rem }
+  :is(button, .button, input, select, textarea).lg { font-size: 1.125rem }
+
+  /* An input is display:block; inline-size:100%, so an adornment has nowhere to sit. The wrapper
+     carries the border and the focus ring; the input inside carries neither. */
+  .field {
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    padding-inline: .75em;
+    border: 1px solid var(--l-border);
+    border-radius: var(--l-radius);
+    corner-shape: var(--l-corner);
+    background: var(--l-bg);
+    margin-block-end: var(--l-space);
+    &:focus-within { border-color: var(--l-primary); box-shadow: var(--l-focus) }
+    & > :is(input, select, textarea) {
+      border: 0;
+      padding-inline: 0;
+      background: none;
+      margin-block-end: 0;
+      &:focus { box-shadow: none }
+    }
+    & > :is(svg, span, kbd) { flex: none; color: var(--l-muted) }
+    & > svg { inline-size: 1.1em; block-size: 1.1em }
+  }
+
   /* squircles where supported; plain rounded corners elsewhere */
   :is(input, select, textarea, button, .button, fieldset, details, pre, article, .card, dialog, [popover], body > header) {
     corner-shape: var(--l-corner);

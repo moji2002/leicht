@@ -226,6 +226,34 @@
     }
   }
 
+  /* an avatar is an <img> or a pair of initials; both want the same box */
+  .avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    inline-size: var(--size, 2rem);
+    block-size: var(--size, 2rem);
+    border-radius: 50%;
+    corner-shape: var(--l-corner);
+    background: var(--l-primary);
+    color: var(--l-on-primary);
+    font-size: calc(var(--size, 2rem) * .4);
+    font-weight: 600;
+    object-fit: cover;
+    overflow: hidden;
+  }
+
+  /* a status dot reads at a glance where a .tag is too heavy; it inherits the variant colour */
+  .dot {
+    display: inline-block;
+    inline-size: .5em;
+    block-size: .5em;
+    border-radius: 50%;
+    background: var(--l-primary);
+    margin-inline-end: .45em;
+    vertical-align: .05em;
+  }
+
   /* tag: a pill, or a luggage-label shape where border-shape exists */
   .tag {
     display: inline-block;

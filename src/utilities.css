@@ -5,6 +5,9 @@
   .flex { display: flex; flex-wrap: wrap; flex-wrap: balance; align-items: center; gap: var(--gap, var(--l-space)) }
   .stack { display: grid; gap: var(--gap, var(--l-space)) }
   .full-width { inline-size: 100% }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-inline-size: 0 }
+  .between { justify-content: space-between }
+  .end { justify-content: flex-end }
   .sr-only { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap }
   @media (width < 40rem) { .hide-sm { display: none } }
   @media (width >= 40rem) { .hide-lg { display: none } }

@@ -5,6 +5,8 @@
   .ghost { --_bg: #0000; --_fg: var(--l-primary) }
   .error { --l-primary: var(--l-error) }
   .success { --l-primary: var(--l-success) }
+  .warning { --l-primary: var(--l-warning) }
+  .neutral { --l-primary: var(--l-muted) }
 
   /* grid: equal columns by default, 12 tracks once any .col-N appears */
   .row {

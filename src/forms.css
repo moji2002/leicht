@@ -8,7 +8,7 @@
     border-radius: var(--l-radius);
     background: var(--l-bg);
     transition: border-color .15s, box-shadow .15s;
-    &:focus { outline: 0; border-color: var(--l-primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--l-primary) 25%, #0000) }
+    &:focus { outline: 0; border-color: var(--l-primary); box-shadow: var(--l-focus) }
     &:user-invalid { border-color: var(--l-error) }
   }
   textarea { min-block-size: 5lh; resize: vertical; field-sizing: content }

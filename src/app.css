@@ -132,3 +132,87 @@
      is the semantic way to say "this is a value"; .num is the escape hatch for a plain cell. */
   :is(th, td).num, td:has(> data) { text-align: end }
 }
+
+@layer leicht.components {
+  /* ---- tabs: the ARIA that makes them announce correctly is the hook that styles them ---- */
+  [role=tablist] {
+    display: flex;
+    gap: var(--l-space);
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-block-end: var(--l-space);
+    border-block-end: 1px solid var(--l-border);
+  }
+  [role=tab] {
+    --_bg: #0000;
+    --_fg: var(--l-muted);
+    flex: none;
+    padding: var(--l-space-sm) 0;
+    border: 0;
+    border-radius: 0;
+    border-block-end: 2px solid #0000;
+    margin-block-end: -1px;
+    &:hover { filter: none; --_fg: var(--l-fg) }
+    &[aria-selected=true] { --_fg: var(--l-fg); border-block-end-color: var(--l-primary) }
+  }
+
+  /* ---- toasts: <output> is already the live region for "a result the page produced". Scoped to
+     a direct child of body, so an <output> inside a form or a label stays inline. ---- */
+  body > output {
+    position: fixed;
+    inset-block-end: var(--l-space);
+    inset-inline-end: var(--l-space);
+    z-index: 2;                     /* body > header is 1 */
+    display: grid;
+    gap: var(--l-space-sm);
+    max-inline-size: 22rem;
+    & > .alert {
+      margin: 0;
+      background: var(--l-glass-top);
+      backdrop-filter: var(--l-blur);
+      box-shadow: var(--l-shadow);
+    }
+  }
+
+  /* ---- [aria-busy]: the attribute a screen reader needs is the attribute that draws it ---- */
+  [aria-busy=true]:not(button) {
+    display: inline-block;
+    border-radius: var(--l-radius);
+    color: #0000;
+    background: linear-gradient(90deg, var(--l-surface), color-mix(in oklab, var(--l-fg) 9%, var(--l-bg)), var(--l-surface)) 0 0 / 200% 100%;
+    animation: l-shimmer 1.4s linear infinite;
+  }
+  @keyframes l-shimmer { to { background-position: -200% 0 } }
+
+  button[aria-busy=true] {
+    pointer-events: none;
+    opacity: .7;
+    &::before {
+      content: "";
+      inline-size: 1em;
+      block-size: 1em;
+      border: 2px solid #0006;
+      border-block-start-color: currentColor;
+      border-radius: 50%;
+      animation: l-spin .7s linear infinite;
+    }
+  }
+  @keyframes l-spin { to { rotate: 1turn } }
+
+  /* ---- pagination: a nav whose list is ordered, because page order is meaningful ---- */
+  nav[aria-label] > ol {
+    justify-content: center;
+    gap: var(--l-space-xs);
+    & [aria-current] { --_bg: var(--l-primary); --_fg: var(--l-on-primary); --_bd: #0000 }
+  }
+
+  /* ---- a dl is a two-column table of one thing each: totals, metadata, specs ---- */
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--l-space-xs) var(--l-space);
+    font-size: .9375rem;
+    & dt { color: var(--l-muted) }
+    & dd { margin: 0; text-align: end }
+  }
+}

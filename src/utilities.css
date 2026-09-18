@@ -10,6 +10,10 @@
   @media (width >= 40rem) { .hide-lg { display: none } }
 
   @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }
-  @media (prefers-reduced-motion: reduce) { *, ::backdrop { transition: none } }
+  /* ::before/::after are not matched by *, so a pseudo-element animation — the button spinner,
+     for one — kept running under reduced motion until they were named here */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after, ::backdrop { transition: none; animation: none }
+  }
   @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) { :root { --l-glass: var(--l-bg); --l-blur: none } }
 }

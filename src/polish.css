@@ -46,7 +46,7 @@
 
   /* Windows High Contrast: drop the glass, keep real borders */
   @media (forced-colors: active) {
-    .glass, .liquid, body > header, dialog, [popover] {
+    .glass, .liquid, body > header, dialog, [popover], body > output > .alert {
       backdrop-filter: none;
       background: Canvas;
       border: 1px solid CanvasText;
@@ -56,7 +56,7 @@
 
   @media print {
     :root { --l-bg: #fff; --l-fg: #000; --l-glass: #fff; --l-blur: none; color-scheme: light }
-    body > :is(header, footer), nav, dialog, [popover], .button, button { display: none }
+    body > :is(header, footer, output), nav, dialog, [popover], .button, button { display: none }
     body > main, .container { max-inline-size: none; padding: 0 }
     :is(article, .card, pre, blockquote, table, figure, details) {
       break-inside: avoid;

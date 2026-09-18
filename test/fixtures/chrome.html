@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>chrome fixture</title>
+<link rel="stylesheet" href="../../dist/leicht.css">
+</head>
+<body>
+<main>
+  <h1>Application chrome</h1>
+
+  <div role="tablist" aria-label="Invoice status">
+    <button role="tab" aria-selected="true" id="tab-sel">All <span class="tag">248</span></button>
+    <button role="tab" id="tab-other">Open <span class="tag">31</span></button>
+    <button role="tab">Overdue</button>
+    <button role="tab">Draft</button>
+  </div>
+
+  <h2>Loading states</h2>
+  <button aria-busy="true" id="busy-btn">Saving</button>
+  <button id="idle-btn">Idle</button>
+  <p><span aria-busy="true" id="busy-txt">Loading the next page of invoices…</span></p>
+
+  <h2>Key and value</h2>
+  <dl id="kv">
+    <dt>Subtotal</dt><dd id="kv-dd">$12,400.00</dd>
+    <dt>VAT (0% — reverse charge)</dt><dd>$0.00</dd>
+    <dt>Paid</dt><dd>$12,400.00</dd>
+    <dt><strong>Balance</strong></dt><dd><strong>$0.00</strong></dd>
+  </dl>
+
+  <h2>Pagination</h2>
+  <nav aria-label="Pagination" id="pager">
+    <ol>
+      <li><a href="#" class="button secondary">Previous</a></li>
+      <li><a href="#" class="button secondary" aria-current="page" id="page-current">1</a></li>
+      <li><a href="#" class="button secondary" id="page-other">2</a></li>
+      <li><a href="#" class="button secondary">3</a></li>
+      <li><a href="#" class="button secondary">Next</a></li>
+    </ol>
+  </nav>
+
+  <h2>Small pieces</h2>
+  <div class="flex between" id="bar">
+    <div class="flex">
+      <span class="avatar" id="av">MB</span>
+      <span class="avatar" id="av-sm" style="--size:1.5rem">AC</span>
+      <span class="truncate" id="trunc" style="max-inline-size:12ch">billing@kranzler-und-soehne-handels.example.com</span>
+    </div>
+    <div class="flex">
+      <span class="success text-primary"><i class="dot" id="dot"></i>Paid</span>
+      <span class="warning text-primary"><i class="dot"></i>Open</span>
+      <button class="sm secondary" id="btn-sm">Small</button>
+      <button class="lg" id="btn-lg">Large</button>
+    </div>
+  </div>
+
+  <label for="amt">Only above</label>
+  <div class="field" id="field">
+    <span>$</span>
+    <input id="amt" type="number" value="250">
+    <span>USD</span>
+  </div>
+</main>
+
+<output id="toasts">
+  <div class="alert success"><p>Invoice INV-2417 marked as reconciled.</p></div>
+  <div class="alert warning"><p>Card ending 4242 expires in 11 days.</p></div>
+</output>
+</body>
+</html>

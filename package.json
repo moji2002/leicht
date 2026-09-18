@@ -1,6 +1,6 @@
 {
   "name": "leicht",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A tiny classless-first CSS library in modern CSS: cascade layers, light-dark(), squircles, glass and liquid refraction. Link one file, write ordinary HTML.",
   "keywords": [
     "leicht",

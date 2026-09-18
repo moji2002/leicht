@@ -93,7 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           npm pack --ignore-scripts --json \
-            | node tools/parse-pack-result.js \
+            | node tools/parse-pack-result.cjs \
             >> "$GITHUB_OUTPUT"
       - id: published
         shell: bash
@@ -105,10 +105,13 @@ jobs:
           ERROR_FILE=$(mktemp)
           if REMOTE_INTEGRITY=$(npm view "leicht@$V" dist.integrity 2>"$ERROR_FILE"); then
             if [ "$REMOTE_INTEGRITY" != "$LOCAL_INTEGRITY" ]; then
-              echo "leicht@$V already exists with different bytes" >&2
-              exit 1
+              # A warning, not a failure: main collects source changes between releases,
+              # and every one of them would otherwise turn the run red.
+              echo "::warning::leicht@$V is published, but this commit builds a different \
+          tarball. Bump the version to release these changes."
+            else
+              echo "leicht@$V already exists with identical bytes"
             fi
-            echo "leicht@$V already exists with identical bytes — skipping publish"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           elif grep -q "E404" "$ERROR_FILE"; then
             echo "leicht@$V is not published yet"

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>popover fixture</title>
+<link rel="stylesheet" href="../../dist/leicht.css">
+</head>
+<body>
+<main>
+  <h1>Popover kinds</h1>
+
+  <button popovertarget="menu-pop" id="menu-btn" style="anchor-name:--m">Menu</button>
+  <menu popover id="menu-pop" style="position-anchor:--m">
+    <li><button type="button" id="menu-row">View</button></li>
+    <li><button type="button">Duplicate</button></li>
+  </menu>
+
+  <button popovertarget="panel-pop" id="panel-btn" style="anchor-name:--p">Panel</button>
+  <div popover id="panel-pop" style="position-anchor:--p">
+    <h4>More filters</h4>
+    <label for="p-min">Amount over</label>
+    <input id="p-min" type="number" value="0">
+    <footer class="flex">
+      <button type="button" class="secondary">Cancel</button>
+      <button type="button" id="apply">Apply</button>
+    </footer>
+  </div>
+</main>
+</body>
+</html>

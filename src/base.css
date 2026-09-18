@@ -10,8 +10,10 @@
     padding: var(--l-space) clamp(1rem, 4vw, 2rem);
   }
   body > main, .container { container-type: inline-size }
-  :is(body > main, article, .card, dialog, [popover]) > :first-child { margin-block-start: 0 }
-  :is(article, .card, dialog, [popover], header) > :last-child { margin-block-end: 0 }
+  /* both ends, and the same list on both: a heading inside a card's <header> kept its 1.6em
+     top margin, so the title sat low in the bar it is centred in */
+  :is(body > main, article, .card, dialog, [popover], header, footer) > :first-child { margin-block-start: 0 }
+  :is(article, .card, dialog, [popover], header, footer) > :last-child { margin-block-end: 0 }
 
   h1, h2, h3, h4, h5, h6 { margin-block: 1.6em .5em; line-height: 1.2; text-wrap: balance }
   h1 { font-size: 2.25rem }

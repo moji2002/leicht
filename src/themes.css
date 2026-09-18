@@ -2,38 +2,39 @@
     Each skin is mostly token overrides; light/dark still works through data-theme. */
 @layer leicht.components {
 
-  /* ---- cyber: neon, bevelled corners, glow instead of shadow. Dark is its home, but the
-     light pairing keeps the same hues at text-safe lightness instead of forcing a scheme. ---- */
+  /* ---- cyber: one electric accent on near-black, chamfered corners, and glow kept for the
+     thing under the pointer. The earlier version glowed on headings, buttons and every panel at
+     once, which reads as a screensaver rather than an interface. ---- */
   [data-skin=cyber] {
-    --l-font: "Geist Mono", ui-monospace, monospace;
-    --l-bg: light-dark(oklch(97.5% .02 200), oklch(15% .04 285));
-    --l-fg: light-dark(oklch(22% .06 285), oklch(95% .04 190));
-    --l-primary: light-dark(oklch(50% .14 200), oklch(84% .18 190));
-    --l-error: light-dark(oklch(55% .24 350), oklch(72% .25 350));
-    --l-success: light-dark(oklch(52% .16 155), oklch(86% .21 140));
-    --l-on-primary: light-dark(oklch(99% .01 200), oklch(14% .04 285));
-    --l-surface: color-mix(in oklab, var(--l-primary) 7%, var(--l-bg));
-    --l-muted: color-mix(in oklab, var(--l-fg) 62%, var(--l-bg));
-    --l-border: color-mix(in oklab, var(--l-primary) 32%, #0000);
+    --l-bg: light-dark(oklch(98.5% .006 230), oklch(13.5% .03 275));
+    --l-fg: light-dark(oklch(17% .035 275), oklch(93% .02 215));
+    --l-primary: light-dark(oklch(48% .19 245), oklch(80% .16 205));
+    --l-error: light-dark(oklch(55% .23 350), oklch(74% .22 350));
+    --l-success: light-dark(oklch(51% .15 160), oklch(83% .18 160));
+    --l-on-primary: light-dark(oklch(99% .01 230), oklch(12.5% .03 275));
+    --l-surface: color-mix(in oklab, var(--l-primary) 4%, var(--l-bg));
+    --l-muted: color-mix(in oklab, var(--l-fg) 60%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-primary) 26%, #0000);
+    /* a chamfer, not an octagon: the cut only reads at a small radius */
     --l-corner: bevel;
-    --l-radius: .7rem;
-    --l-shadow: 0 0 28px color-mix(in oklab, var(--l-primary) 30%, #0000);
-    --l-glass: color-mix(in oklab, var(--l-bg) 55%, #0000);
-    --l-glass-edge: inset 0 1px color-mix(in oklab, var(--l-primary) 55%, #0000),
-                    inset 0 0 0 1px color-mix(in oklab, var(--l-primary) 22%, #0000);
-    --l-liquid-edge: color-mix(in oklab, var(--l-primary) 55%, #0000);
-    --l-syn-1: light-dark(oklch(48% .16 200), oklch(84% .18 190));
-    --l-syn-2: light-dark(oklch(50% .22 330), oklch(84% .2 330));
-    --l-syn-3: light-dark(oklch(48% .16 150), oklch(88% .2 140));
+    --l-radius: .45rem;
+    --l-shadow: 0 12px 32px -18px color-mix(in oklab, var(--l-primary) 65%, #0000);
+    --l-glass: color-mix(in oklab, var(--l-bg) 58%, #0000);
+    --l-glass-edge: inset 0 0 0 1px color-mix(in oklab, var(--l-primary) 28%, #0000);
+    --l-liquid-edge: color-mix(in oklab, var(--l-primary) 45%, #0000);
+    --l-syn-1: light-dark(oklch(48% .16 235), oklch(82% .16 205));
+    --l-syn-2: light-dark(oklch(50% .22 330), oklch(82% .19 330));
+    --l-syn-3: light-dark(oklch(48% .16 160), oklch(84% .18 160));
 
+    /* the glow is a pointer state, not a paint */
     & :is(button, [type=submit], [type=button], [type=reset], .button) {
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      font-size: .92em;
-      &:hover { box-shadow: 0 0 18px color-mix(in oklab, var(--l-primary) 55%, #0000) }
+      letter-spacing: .03em;
+      &:is(:hover, :focus-visible) {
+        box-shadow: 0 0 0 1px color-mix(in oklab, var(--l-primary) 45%, #0000),
+                    0 0 20px -6px color-mix(in oklab, var(--l-primary) 70%, #0000);
+      }
     }
-    & :is(h1, h2, h3) { text-shadow: 0 0 22px color-mix(in oklab, var(--l-primary) 35%, #0000) }
-    & .tag { text-transform: uppercase; letter-spacing: .06em }
+    & .tag { text-transform: uppercase; letter-spacing: .06em; font-size: .78em }
   }
 
   /* ---- terminal: monospace everything, square, hairline, no depth ---- */
@@ -125,10 +126,13 @@
     --l-shadow: 0 8px 24px -14px color-mix(in oklab, var(--l-fg) 60%, #0000);
   }
 
-  /* ---- mono: no hue at all; hierarchy comes from weight and contrast ---- */
+  /* ---- mono: a plain text UI. Monospace, square, hairline, no hue and no depth — the shape of
+     a terminal without the phosphor, where `terminal` keeps the green and the > prompts ---- */
   [data-skin=mono] {
-    --l-bg: light-dark(#fff, oklch(13% 0 0));
-    --l-fg: light-dark(oklch(18% 0 0), oklch(96% 0 0));
+    --l-font: "Geist Mono", ui-monospace, monospace;
+    --l-mono: var(--l-font);
+    --l-bg: light-dark(#fff, oklch(12% 0 0));
+    --l-fg: light-dark(oklch(17% 0 0), oklch(96% 0 0));
     --l-primary: light-dark(oklch(32% 0 0), oklch(86% 0 0));
     /* no hue means no colour signal: destructive is the darkest/lightest thing on screen and
        is underlined as well, since a grey button alone cannot say "this deletes something" */
@@ -136,24 +140,32 @@
     --l-success: light-dark(oklch(45% 0 0), oklch(72% 0 0));
     --l-on-primary: var(--l-bg);
     --l-surface: color-mix(in oklab, var(--l-fg) 5%, var(--l-bg));
-    --l-border: color-mix(in oklab, var(--l-fg) 22%, #0000);
-    --l-radius: .35rem;
-    /* flat like terminal: no glass, hard un-blurred shadow */
-    --l-shadow: 3px 3px 0 color-mix(in oklab, var(--l-fg) 18%, #0000);
+    --l-muted: color-mix(in oklab, var(--l-fg) 55%, var(--l-bg));
+    --l-border: color-mix(in oklab, var(--l-fg) 32%, #0000);
+    --l-radius: 0;
+    --l-corner: round;
+    /* a text UI has no depth at all: no glass, no blur, and no shadow either */
+    --l-shadow: 0 0 #0000;
     --l-glass: var(--l-bg);
     --l-blur: none;
     --l-glass-edge: 0 0 #0000;   /* not `none`: it would void the whole shadow list */
     --l-liquid-tint: 100%;
     --l-syn-1: var(--l-fg); --l-syn-2: var(--l-muted); --l-syn-3: var(--l-muted);
 
-    &:dir(rtl) { --l-shadow: -3px 3px 0 color-mix(in oklab, var(--l-fg) 18%, #0000) }
-    & :is(dialog, [popover], body > header) { border: 1px solid var(--l-border) }
+    /* one hairline on every framed thing, the width of a rule drawn in characters */
+    & :is(article, .card, dialog, [popover], fieldset, details, pre, body > header,
+          input, select, textarea, button, [type=submit], [type=button], [type=reset], .button) {
+      border: 1px solid var(--l-border);
+    }
+    & :is(button, [type=submit], [type=button], [type=reset], .button):not(.ghost) {
+      border-color: currentColor;
+    }
+    & .ghost { border-color: #0000 }
     & dialog::backdrop { backdrop-filter: none; background: color-mix(in oklab, var(--l-fg) 45%, #0000) }
 
-    & a:not(.button) { text-decoration-thickness: 2px }
+    & a:not(.button) { text-underline-offset: .2em }
     & .tag { background: var(--l-fg); color: var(--l-bg); border-color: #0000 }
     & .error { text-decoration: underline; text-underline-offset: .25em }
-    & :is(h1, h2, h3) { letter-spacing: -.03em }
   }
 
   /* ---- sunset: warm amber and pink over deep plum ---- */

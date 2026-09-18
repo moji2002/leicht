@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en" data-theme="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Billing — leicht production stress test</title>
+<link rel="stylesheet" href="dist/leicht.css">
+
+<!--
+  ============================================================================
+  EVERY RULE BELOW IS A GAP.
+  This page is an ordinary SaaS admin console written in plain HTML with
+  leicht's vocabulary. Anything leicht could not express, I wrote by hand and
+  tagged GAP-n. Delete this <style> block and the page tells you what is
+  missing by falling apart in that exact spot.
+  ============================================================================
+-->
+<style>
+/* GAP-1 — No app shell. `body > main` is a 72rem centred column with a sticky
+   glass toolbar. A console needs a full-bleed sidebar + content grid, and there
+   is no way to opt out of the max-inline-size without unsetting it by hand. */
+body { display: grid; grid-template-columns: 15rem 1fr; min-block-size: 100dvh }
+body > aside { border-inline-end: 1px solid var(--l-border); background: var(--l-surface); padding: var(--l-space) }
+body > .shell { min-inline-size: 0 }
+body > .shell > main, body > .shell > header { max-inline-size: none; margin-inline: 0 }
+body > .shell > header { inline-size: auto; margin-block: 0; border-radius: 0; position: sticky; inset-block-start: 0 }
+@media (width < 60rem) {
+  body { grid-template-columns: 1fr }
+  body > aside { display: none }
+}
+
+/* GAP-2 — No warning/info semantic colours. `.error` and `.success` exist;
+   every console needs at least warning, and usually info/neutral. Had to mint
+   the token and the variant class by hand. */
+:root { --l-warning: light-dark(oklch(62% .15 75), oklch(80% .15 80)) }
+.warning { --l-primary: var(--l-warning) }
+.neutral  { --l-primary: var(--l-muted) }
+
+/* GAP-3 — No button or control sizes. Toolbars need a compact control and
+   marketing pages need a big one. `padding: .5em 1.1em` is the only size. */
+.sm { padding: .3em .7em; font-size: .875rem }
+.lg { padding: .7em 1.5em; font-size: 1.125rem }
+
+/* GAP-4 — No table affordances: no wrapper for horizontal overflow, no sticky
+   header, no zebra/hover rows, no numeric column alignment, no compact density.
+   A 9-column table simply overflows the page on a laptop. */
+.table-wrap { overflow-x: auto; margin-block-end: var(--l-space); border: 1px solid var(--l-border); border-radius: var(--l-radius) }
+.table-wrap > table { margin: 0 }
+.table-wrap th { position: sticky; inset-block-start: 0; background: var(--l-bg); z-index: 1 }
+tbody tr:hover { background: var(--l-surface) }
+td.num, th.num { text-align: end }
+td.actions { text-align: end; white-space: nowrap }
+
+/* GAP-5 — No truncation. Long email addresses and IDs blow out every column. */
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-inline-size: 18ch }
+
+/* GAP-6 — No avatar. Present in literally every console header, member list
+   and comment thread. */
+.avatar { inline-size: 2rem; block-size: 2rem; border-radius: 50%; corner-shape: var(--l-corner); object-fit: cover; flex: none; display: inline-grid; place-items: center; background: var(--l-primary); color: var(--l-on-primary); font-size: .8rem; font-weight: 600 }
+
+/* GAP-7 — No status dot. `.tag` is a pill with a border; a status column wants
+   a 8px dot that inherits the semantic colour. */
+.dot { inline-size: .5em; block-size: .5em; border-radius: 50%; background: var(--l-primary); display: inline-block; margin-inline-end: .45em; vertical-align: .05em }
+
+/* GAP-8 — No tabs. <nav> styles a top bar, not a tablist; no underline, no
+   selected state beyond a colour change on [aria-current]. */
+[role=tablist] { display: flex; gap: var(--l-space); border-block-end: 1px solid var(--l-border); margin-block-end: var(--l-space) }
+[role=tab] { --_bg: #0000; --_fg: var(--l-muted); border: 0; border-radius: 0; padding-inline: 0; padding-block: .5em; border-block-end: 2px solid #0000; margin-block-end: -1px }
+[role=tab][aria-selected=true] { --_fg: var(--l-fg); border-block-end-color: var(--l-primary) }
+
+/* GAP-9 — No skeleton / loading state, and no spinner. Every async table and
+   card needs one, and `aria-busy` is unstyled. */
+.skeleton { background: linear-gradient(90deg, var(--l-surface), color-mix(in oklab, var(--l-fg) 9%, var(--l-bg)), var(--l-surface)) 0 0 / 200% 100%; border-radius: var(--l-radius); color: #0000; animation: l-shimmer 1.4s linear infinite }
+@keyframes l-shimmer { to { background-position: -200% 0 } }
+button[aria-busy=true] { pointer-events: none; opacity: .7 }
+button[aria-busy=true]::before { content: ""; inline-size: 1em; block-size: 1em; border: 2px solid #0006; border-block-start-color: currentColor; border-radius: 50%; animation: l-spin .7s linear infinite }
+@keyframes l-spin { to { rotate: 1turn } }
+
+/* GAP-10 — No toast / notification region. `.alert` is a static block in flow;
+   there is no live-region stack pinned to a corner. */
+.toasts { position: fixed; inset-block-end: 1rem; inset-inline-end: 1rem; z-index: 99; display: grid; gap: .5rem; max-inline-size: 22rem }
+.toasts > .alert { margin: 0; background: var(--l-glass-top); backdrop-filter: var(--l-blur); box-shadow: var(--l-shadow) }
+
+/* GAP-11 — No input adornments. A currency field, a search field with a
+   leading icon, a field with a unit suffix — all need a wrapper leicht
+   doesn't have, because `input` is forced to `display:block; width:100%`. */
+.field { display: flex; align-items: center; gap: .5em; border: 1px solid var(--l-border); border-radius: var(--l-radius); corner-shape: var(--l-corner); padding-inline: .75em; background: var(--l-bg) }
+.field:focus-within { border-color: var(--l-primary); box-shadow: 0 0 0 3px color-mix(in oklab, var(--l-primary) 25%, #0000) }
+.field > input { border: 0; padding-inline: 0; background: none; &:focus { box-shadow: none } }
+.field > svg, .field > span { flex: none; color: var(--l-muted); inline-size: 1.1em }
+
+/* GAP-12 — `.flex` centres and wraps, full stop. No justify/align/gap
+   modifiers, so every header row needs a one-off rule. */
+.between { justify-content: space-between }
+.end { justify-content: flex-end }
+.items-start { align-items: start }
+.gap-sm { --gap: .5rem }
+
+/* GAP-13 — No spacing utilities at all. Not even one. Vertical rhythm is fixed
+   at --l-space per block element. */
+.mb-0 { margin-block-end: 0 }
+.mt-lg { margin-block-start: calc(var(--l-space) * 2) }
+
+/* GAP-14 — No stat / KPI presentation. A number needs to be big, tabular and
+   optically tight; `h2` inside a card brings 1.6em of top margin with it. */
+.stat { font-size: 2rem; font-weight: 600; line-height: 1.1; margin: .2rem 0; font-variant-numeric: tabular-nums }
+.delta { font-size: .875rem; font-weight: 600 }
+
+/* GAP-15 — No pagination. */
+.pagination { display: flex; gap: .25rem; align-items: center; justify-content: center }
+
+/* GAP-16 — `article > header` is a flex-less block, so a card title with a
+   trailing action or menu needs its own layout every time. */
+.card > header, article > header { display: flex; align-items: center; justify-content: space-between; gap: .5rem }
+
+/* GAP-17 — No breadcrumb. <nav><ol> gets the top-bar treatment (space-between,
+   no separators). */
+.crumbs ol { gap: .4rem; font-size: .875rem; color: var(--l-muted) }
+.crumbs li + li::before { content: "/"; margin-inline-end: .4rem; opacity: .5 }
+
+/* GAP-18 — Sidebar navigation. `nav` is horizontal and space-between by
+   design; a vertical nav list with selected-row highlighting is a rewrite. */
+.sidenav ul { display: grid; gap: .15rem; inline-size: 100% }
+.sidenav a { display: flex; align-items: center; gap: .6em; padding: .45em .6em; border-radius: var(--l-radius); corner-shape: var(--l-corner) }
+.sidenav a:hover { background: color-mix(in oklab, var(--l-fg) 6%, #0000) }
+.sidenav a[aria-current] { background: color-mix(in oklab, var(--l-primary) 14%, #0000) }
+.sidenav svg { inline-size: 1.1em; block-size: 1.1em; opacity: .75 }
+
+/* GAP-19 — Dense definition lists. <dl> gets bottom margin and nothing else,
+   so every "key: value" summary panel is hand-built. */
+dl.kv { display: grid; grid-template-columns: auto 1fr; gap: .4rem 1rem; font-size: .9375rem }
+dl.kv dt { color: var(--l-muted) }
+dl.kv dd { margin: 0; text-align: end }
+
+/* GAP-20 — No visual separator inside a flex row, and no way to make the card
+   footer's buttons sit apart. */
+.sep { inline-size: 1px; align-self: stretch; background: var(--l-border) }
+</style>
+</head>
+
+<body>
+<a href="#main">Skip to content</a>
+
+<aside>
+  <div class="flex gap-sm" style="margin-block-end:1.25rem">
+    <span class="avatar">N</span>
+    <strong>Northwind</strong>
+  </div>
+
+  <nav class="sidenav">
+    <ul>
+      <li><a href="#main" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</a></li>
+      <li><a href="#invoices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16v18l-3-2-3 2-3-2-3 2z"/><path d="M8 8h8M8 12h5"/></svg>Invoices</a></li>
+      <li><a href="#customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11a3 3 0 1 0-2-5.2M21 20a5 5 0 0 0-4-4.9"/></svg>Customers</a></li>
+      <li><a href="#settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 13.6a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9.5A1.7 1.7 0 0 0 10.6 3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1A2 2 0 1 1 20.4 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1.1 2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1z"/></svg>Settings</a></li>
+    </ul>
+  </nav>
+
+  <hr>
+  <small>Plan: <strong>Scale</strong></small>
+  <p><small>82% of 50,000 API calls</small></p>
+  <meter value="41000" max="50000" low="25000" high="45000" optimum="10000">82%</meter>
+</aside>
+
+<div class="shell">
+<header>
+  <nav>
+    <div class="flex gap-sm crumbs">
+      <ol>
+        <li><a href="#main">Workspace</a></li>
+        <li><a href="#invoices">Billing</a></li>
+        <li aria-current="page">Invoices</li>
+      </ol>
+    </div>
+
+    <div class="flex gap-sm">
+      <div class="field hide-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search invoices…" aria-label="Search invoices">
+        <kbd>⌘K</kbd>
+      </div>
+
+      <button class="ghost sm" aria-label="Notifications" interestfor="tip-bell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <div popover="hint" id="tip-bell">3 unread alerts</div>
+
+      <button class="secondary sm" popovertarget="acct-menu" id="acct-btn" style="anchor-name:--acct">
+        <span class="avatar" style="inline-size:1.4rem;block-size:1.4rem;font-size:.65rem">MB</span>
+        Mojtaba
+      </button>
+      <menu popover id="acct-menu" style="position-anchor:--acct">
+        <li><a href="#settings">Account settings</a></li>
+        <li><a href="#settings">Billing preferences</a></li>
+        <li><button type="button" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">Toggle theme</button></li>
+        <li><hr></li>
+        <li><button type="button" class="error ghost">Sign out</button></li>
+      </menu>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+  <div class="flex between">
+    <h1>Invoices</h1>
+    <div class="flex gap-sm">
+      <div class="group">
+        <button class="secondary sm">Day</button>
+        <button class="secondary sm" aria-pressed="true">Week</button>
+        <button class="secondary sm">Month</button>
+      </div>
+      <button class="secondary sm">Export</button>
+      <button class="sm" onclick="document.getElementById('new-invoice').showModal()">New invoice</button>
+    </div>
+  </div>
+
+  <div class="alert warning">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <p><strong>Card expiring.</strong> The card ending 4242 expires in 11 days. <a href="#settings">Update payment method</a>.</p>
+  </div>
+
+  <!-- KPI row -->
+  <div class="row">
+    <div class="card">
+      <small>Outstanding</small>
+      <p class="stat mb-0">$48,920</p>
+      <small class="delta text-primary">↑ 12.4% vs last week</small>
+    </div>
+    <div class="card">
+      <small>Paid this month</small>
+      <p class="stat mb-0">$212,480</p>
+      <small class="delta success text-primary">↑ 4.1%</small>
+    </div>
+    <div class="card">
+      <small>Overdue</small>
+      <p class="stat mb-0">$7,310</p>
+      <small class="delta error text-primary">↑ 31% — 6 invoices</small>
+    </div>
+    <div class="card">
+      <small>Collected rate</small>
+      <p class="stat mb-0">94.2%</p>
+      <progress value="94" max="100"></progress>
+    </div>
+  </div>
+
+  <!-- Tabs + filters + table -->
+  <div role="tablist" aria-label="Invoice status">
+    <button role="tab" aria-selected="true">All <span class="tag">248</span></button>
+    <button role="tab">Open <span class="tag">31</span></button>
+    <button role="tab">Overdue <span class="tag error">6</span></button>
+    <button role="tab">Draft</button>
+  </div>
+
+  <div class="flex between" style="margin-block-end:var(--l-space)">
+    <div class="flex gap-sm">
+      <label for="f-status" class="sr-only">Status</label>
+      <select id="f-status" style="inline-size:auto">
+        <option>Any status</option><option>Paid</option><option>Open</option><option>Overdue</option>
+      </select>
+      <label for="f-owner" class="sr-only">Owner</label>
+      <select id="f-owner" style="inline-size:auto">
+        <option>Any owner</option><option>Mojtaba B.</option><option>Dana R.</option>
+      </select>
+      <button class="ghost sm">Clear</button>
+      <button class="secondary sm" popovertarget="filter-panel" id="filter-btn" style="anchor-name:--filt">More filters</button>
+      <!-- GAP-21 — every [popover] is styled as a MENU: 12rem min-width, .35rem padding,
+           anchored under its invoker, and every button/link inside forced to a full-width,
+           left-aligned menu row with a primary-fill hover. A popover that is a panel — filters,
+           a date picker, a share sheet — has to undo all of that. -->
+      <div popover id="filter-panel" style="position-anchor:--filt; min-inline-size:22rem; padding:1rem">
+        <h4 class="mb-0">More filters</h4>
+        <label for="p-min">Amount over</label>
+        <input id="p-min" type="number" value="0">
+        <label class="mb-0"><input type="checkbox"> Only my invoices</label>
+        <footer class="flex end gap-sm mt-lg">
+          <button class="secondary sm" popovertarget="filter-panel" popovertargetaction="hide">Cancel</button>
+          <button class="sm">Apply</button>
+        </footer>
+      </div>
+    </div>
+    <label class="flex gap-sm mb-0"><input type="checkbox" role="switch"> Show test data</label>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" aria-label="Select all"></th>
+          <th>Invoice</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th class="num">Amount</th>
+          <th>Due</th>
+          <th>Owner</th>
+          <th class="actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2417"></td>
+          <td><a href="#main"><code>INV-2417</code></a></td>
+          <td><div class="flex gap-sm"><span class="avatar" style="inline-size:1.5rem;block-size:1.5rem;font-size:.7rem">AC</span><span class="truncate">Acme Constructions GmbH</span></div></td>
+          <td><span class="success text-primary"><i class="dot"></i>Paid</span></td>
+          <td class="num">$12,400.00</td>
+          <td>Sep 12, 2026</td>
+          <td><span class="truncate">Mojtaba B.</span></td>
+          <td class="actions">
+            <button class="ghost sm" popovertarget="row-menu" id="row-btn" style="anchor-name:--row" aria-label="Row actions">⋯</button>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2416"></td>
+          <td><a href="#main"><code>INV-2416</code></a></td>
+          <td><div class="flex gap-sm"><span class="avatar" style="inline-size:1.5rem;block-size:1.5rem;font-size:.7rem">BL</span><span class="truncate">Blaulicht Medientechnik AG</span></div></td>
+          <td><span class="warning text-primary"><i class="dot"></i>Open</span></td>
+          <td class="num">$3,980.50</td>
+          <td>Sep 22, 2026</td>
+          <td><span class="truncate">Dana R.</span></td>
+          <td class="actions"><button class="ghost sm" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2410"></td>
+          <td><a href="#main"><code>INV-2410</code></a></td>
+          <td><div class="flex gap-sm"><span class="avatar" style="inline-size:1.5rem;block-size:1.5rem;font-size:.7rem">KR</span><span class="truncate">Kranzler &amp; Söhne Handels KG</span></div></td>
+          <td><span class="error text-primary"><i class="dot"></i>Overdue 14d</span></td>
+          <td class="num">$1,120.00</td>
+          <td>Sep 4, 2026</td>
+          <td><span class="truncate">Mojtaba B.</span></td>
+          <td class="actions"><button class="ghost sm" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2409"></td>
+          <td><a href="#main"><code>INV-2409</code></a></td>
+          <td><div class="flex gap-sm"><span class="avatar" style="inline-size:1.5rem;block-size:1.5rem;font-size:.7rem">OS</span><span class="truncate">Ostwind Logistik</span></div></td>
+          <td><span class="neutral text-primary"><i class="dot"></i>Draft</span></td>
+          <td class="num">$640.00</td>
+          <td>—</td>
+          <td><span class="truncate">Dana R.</span></td>
+          <td class="actions"><button class="ghost sm" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr aria-busy="true">
+          <td colspan="8"><span class="skeleton">Loading the next page of invoices…</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <menu popover id="row-menu" style="position-anchor:--row">
+    <li><button type="button">View invoice</button></li>
+    <li><button type="button">Send reminder</button></li>
+    <li><button type="button">Duplicate</button></li>
+    <li><hr></li>
+    <li><button type="button" class="error ghost">Void</button></li>
+  </menu>
+
+  <div class="pagination">
+    <button class="secondary sm">Previous</button>
+    <div class="group">
+      <button class="secondary sm" aria-current="page">1</button>
+      <button class="secondary sm">2</button>
+      <button class="secondary sm">3</button>
+      <button class="secondary sm">…</button>
+      <button class="secondary sm">21</button>
+    </div>
+    <button class="secondary sm">Next</button>
+  </div>
+
+  <hr>
+
+  <!-- Detail + settings -->
+  <div class="row">
+    <div class="col-8">
+      <article>
+        <header>
+          <h3 class="mb-0">INV-2417 · Acme Constructions GmbH</h3>
+          <div class="flex gap-sm">
+            <span class="tag success">Paid</span>
+            <button class="secondary sm">Download PDF</button>
+          </div>
+        </header>
+
+        <table>
+          <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Unit</th><th class="num">Total</th></tr></thead>
+          <tbody>
+            <tr><td>Platform licence — Scale</td><td class="num">1</td><td class="num">$9,000.00</td><td class="num">$9,000.00</td></tr>
+            <tr><td>Additional seats</td><td class="num">14</td><td class="num">$180.00</td><td class="num">$2,520.00</td></tr>
+            <tr><td>Onboarding (one-off)</td><td class="num">1</td><td class="num">$880.00</td><td class="num">$880.00</td></tr>
+          </tbody>
+        </table>
+
+        <dl class="kv">
+          <dt>Subtotal</dt><dd>$12,400.00</dd>
+          <dt>VAT (0% — reverse charge)</dt><dd>$0.00</dd>
+          <dt><strong>Total</strong></dt><dd><strong>$12,400.00</strong></dd>
+        </dl>
+
+        <footer>
+          <button class="ghost">Add note</button>
+          <div class="flex gap-sm end" style="flex:1">
+            <button class="secondary">Refund</button>
+            <button id="save-btn">Mark reconciled</button>
+          </div>
+        </footer>
+      </article>
+    </div>
+
+    <div class="col-4">
+      <form class="card" id="settings">
+        <header><h4 class="mb-0">Reminder settings</h4></header>
+
+        <label for="s-name">Sender name</label>
+        <input id="s-name" value="Northwind Billing">
+
+        <label for="s-mail">Reply-to</label>
+        <input id="s-mail" type="email" value="not-an-email" required>
+        <small>Replies to reminders go here.</small>
+
+        <label for="s-days">Send first reminder</label>
+        <select id="s-days">
+          <option>On the due date</option>
+          <option selected>3 days after</option>
+          <option>7 days after</option>
+        </select>
+
+        <label for="s-amount">Only above</label>
+        <div class="field" style="margin-block-end:var(--l-space)">
+          <span>$</span>
+          <input id="s-amount" type="number" value="250" inputmode="decimal">
+          <span>USD</span>
+        </div>
+
+        <fieldset>
+          <legend>Channels</legend>
+          <label><input type="checkbox" checked> Email</label>
+          <label><input type="checkbox"> Slack</label>
+          <label><input type="checkbox" role="switch" checked> Escalate to owner after 30 days</label>
+        </fieldset>
+
+        <label for="s-note">Default note</label>
+        <textarea id="s-note" rows="3">Kindly settle this invoice at your earliest convenience.</textarea>
+
+        <footer class="flex end gap-sm">
+          <button type="reset" class="ghost">Reset</button>
+          <button type="submit">Save</button>
+        </footer>
+      </form>
+
+      <article>
+        <header><h4 class="mb-0">Activity</h4></header>
+        <ul data-empty="Nothing yet.">
+          <li><small class="text-muted">14:02</small> — Reminder sent to <span class="truncate">billing@acme-constructions.example.com</span></li>
+          <li><small class="text-muted">11:40</small> — Payment received, $12,400.00</li>
+          <li><small class="text-muted">Sep 9</small> — Invoice issued</li>
+        </ul>
+      </article>
+
+      <article>
+        <header><h4 class="mb-0">Empty state</h4></header>
+        <ul data-empty="No disputes on this account."></ul>
+      </article>
+    </div>
+  </div>
+
+  <details>
+    <summary>Danger zone</summary>
+    <p>Voiding an invoice cannot be undone and notifies the customer.</p>
+    <button class="error">Void invoice</button>
+  </details>
+
+</main>
+
+<footer>
+  <div class="flex between">
+    <small>Northwind Billing · built with leicht</small>
+    <small><a href="#main">Docs</a> · <a href="#main">Status</a></small>
+  </div>
+</footer>
+</div>
+
+<!-- modal -->
+<dialog id="new-invoice">
+  <h3>New invoice</h3>
+  <label for="d-cust">Customer</label>
+  <select id="d-cust"><option>Acme Constructions GmbH</option><option>Ostwind Logistik</option></select>
+  <label for="d-amt">Amount</label>
+  <input id="d-amt" type="number" value="1000">
+  <footer>
+    <button class="secondary" onclick="this.closest('dialog').close()">Cancel</button>
+    <button>Create</button>
+  </footer>
+</dialog>
+
+<!-- toasts -->
+<div class="toasts" role="status" aria-live="polite">
+  <div class="alert success">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>
+    <p class="mb-0">Invoice INV-2417 marked as reconciled.</p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('[role=tab]').forEach(t => t.onclick = () => {
+    document.querySelectorAll('[role=tab]').forEach(o => o.setAttribute('aria-selected', o === t));
+  });
+  const save = document.getElementById('save-btn');
+  save.onclick = () => { save.setAttribute('aria-busy', 'true'); setTimeout(() => save.removeAttribute('aria-busy'), 1600) };
+</script>
+</body>
+</html>

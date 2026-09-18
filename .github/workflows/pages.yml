@@ -12,6 +12,7 @@ permissions:
 
 concurrency:
   group: pages
+  # A newer site edit must never interrupt an npm publish in flight.
   cancel-in-progress: false
 
 jobs:
@@ -43,3 +44,106 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  # The npm page and the GitHub repo are the two places people land on; a release
+  # that quietly lets them drift is worse than a failed build.
+  metadata:
+    needs: build
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('node:fs');
+            const manifest = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const repository = await github.rest.repos.get(context.repo);
+            if (repository.data.description !== manifest.description) {
+              core.setFailed(
+                `Repository description is out of sync. Expected: ${manifest.description}`,
+              );
+            }
+
+  # Publishes through OIDC trusted publishing: no npm token anywhere, no OTP, and
+  # npm records provenance pointing back at this run. Runs on every push and skips
+  # itself unless package.json carries a version npm has not seen, so releasing is
+  # `npm version patch && git push`.
+  publish:
+    needs: [build, metadata]
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # Pin the packer as well as the publisher: comparing integrity hashes is only
+      # meaningful when a retry produces the same tarball.
+      - run: npm install -g npm@12.0.2
+      - run: npm --version
+      # dist/ is committed, but the tarball must match src/ at this commit.
+      - run: node build.js
+      - id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm pack --ignore-scripts --json \
+            | node tools/parse-pack-result.js \
+            >> "$GITHUB_OUTPUT"
+      - id: published
+        shell: bash
+        env:
+          LOCAL_INTEGRITY: ${{ steps.package.outputs.integrity }}
+        run: |
+          set -euo pipefail
+          V=$(node -p "require('./package.json').version")
+          ERROR_FILE=$(mktemp)
+          if REMOTE_INTEGRITY=$(npm view "leicht@$V" dist.integrity 2>"$ERROR_FILE"); then
+            if [ "$REMOTE_INTEGRITY" != "$LOCAL_INTEGRITY" ]; then
+              echo "leicht@$V already exists with different bytes" >&2
+              exit 1
+            fi
+            echo "leicht@$V already exists with identical bytes — skipping publish"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif grep -q "E404" "$ERROR_FILE"; then
+            echo "leicht@$V is not published yet"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          else
+            cat "$ERROR_FILE" >&2
+            exit 1
+          fi
+      - if: steps.published.outputs.skip == 'false'
+        env:
+          PACKAGE_FILE: ${{ steps.package.outputs.file }}
+        run: npm publish "$PACKAGE_FILE" --ignore-scripts
+      - if: steps.published.outputs.skip == 'false'
+        shell: bash
+        env:
+          LOCAL_INTEGRITY: ${{ steps.package.outputs.integrity }}
+        run: |
+          set -euo pipefail
+          V=$(node -p "require('./package.json').version")
+          # The publish above already succeeded; this only waits for the registry to
+          # serve it back, which npm has taken minutes to do before now.
+          for attempt in {1..15}; do
+            REMOTE_INTEGRITY=$(npm view "leicht@$V" dist.integrity 2>/dev/null || true)
+            if [ "$REMOTE_INTEGRITY" = "$LOCAL_INTEGRITY" ]; then
+              echo "Verified leicht@$V on npm after ${attempt} attempt(s)"
+              exit 0
+            fi
+            if [ -n "$REMOTE_INTEGRITY" ]; then
+              echo "leicht@$V is on npm but the integrity differs" >&2
+              echo "  local:  $LOCAL_INTEGRITY" >&2
+              echo "  remote: $REMOTE_INTEGRITY" >&2
+              exit 1
+            fi
+            if [ "$attempt" -lt 5 ]; then sleep 5; else sleep 15; fi
+          done
+          echo "npm did not serve leicht@$V back within three minutes." >&2
+          echo "The publish step itself succeeded; check the registry before republishing." >&2
+          exit 1

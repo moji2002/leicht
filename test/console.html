@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northwind Billing — leicht acceptance test</title>
+<link rel="stylesheet" href="../dist/leicht.css">
+
+<!--
+  ============================================================================
+  THE ACCEPTANCE TEST. There is no <style> block, and there must never be one.
+  Against leicht 0.1.1 this same console needed ~70 lines of custom CSS; the
+  gaps it exposed are recorded in docs/production-gaps.md. Every style attribute
+  below must be a token override (--something) or an anchor name — never a
+  property. test/e2e/console.spec.js asserts exactly that.
+  ============================================================================
+-->
+</head>
+
+<body>
+<a href="#main">Skip to content</a>
+
+<aside id="nav" popover>
+  <div class="flex">
+    <span class="avatar">N</span>
+    <strong>Northwind</strong>
+  </div>
+
+  <nav>
+    <ul>
+      <li><a href="#main" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</a></li>
+      <li><a href="#invoices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16v18l-3-2-3 2-3-2-3 2z"/><path d="M8 8h8M8 12h5"/></svg>Invoices</a></li>
+      <li><a href="#main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11a3 3 0 1 0-2-5.2M21 20a5 5 0 0 0-4-4.9"/></svg>Customers</a></li>
+      <li><a href="#settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 13.6a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10.6 3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1A2 2 0 1 1 20.4 7l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.6 1.1 2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1z"/></svg>Settings</a></li>
+    </ul>
+  </nav>
+
+  <hr>
+  <small>Plan: <strong>Scale</strong></small>
+  <p><small>82% of 50,000 API calls</small></p>
+  <meter value="41000" max="50000" low="25000" high="45000" optimum="10000">82%</meter>
+</aside>
+
+<header>
+  <nav>
+    <div class="flex">
+      <button popovertarget="nav" class="ghost sm hide-lg" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <ol>
+        <li><a href="#main">Workspace</a></li>
+        <li><a href="#invoices">Billing</a></li>
+        <li aria-current="page">Invoices</li>
+      </ol>
+    </div>
+
+    <div class="flex">
+      <div class="field hide-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" placeholder="Search invoices…" aria-label="Search invoices">
+        <kbd>⌘K</kbd>
+      </div>
+
+      <button class="ghost sm" aria-label="Notifications" interestfor="tip-bell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <div popover="hint" id="tip-bell">3 unread alerts</div>
+
+      <button class="secondary sm" popovertarget="acct-menu" style="anchor-name:--acct">
+        <span class="avatar" style="--size:1.4rem">MB</span>
+        Mojtaba
+      </button>
+      <menu popover id="acct-menu" style="position-anchor:--acct">
+        <li><a href="#settings">Account settings</a></li>
+        <li><a href="#settings">Billing preferences</a></li>
+        <li><button type="button" id="theme-toggle">Toggle theme</button></li>
+        <li><hr></li>
+        <li><button type="button" class="error ghost">Sign out</button></li>
+      </menu>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+  <div class="flex between">
+    <h1 id="invoices">Invoices</h1>
+    <div class="flex">
+      <div class="group">
+        <button class="secondary sm">Day</button>
+        <button class="secondary sm" aria-pressed="true">Week</button>
+        <button class="secondary sm">Month</button>
+      </div>
+      <button class="secondary sm">Export</button>
+      <button class="sm" id="new-invoice-btn">New invoice</button>
+    </div>
+  </div>
+
+  <div class="alert warning">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <p><strong>Card expiring.</strong> The card ending 4242 expires in 11 days. <a href="#settings">Update payment method</a>.</p>
+  </div>
+
+  <!-- KPI row: a bare .row, which must stack on a phone -->
+  <div class="row">
+    <div class="card">
+      <small>Outstanding</small>
+      <p><strong>$48,920</strong></p>
+      <small class="text-primary">↑ 12.4% vs last week</small>
+    </div>
+    <div class="card">
+      <small>Paid this month</small>
+      <p><strong>$212,480</strong></p>
+      <small class="success text-primary">↑ 4.1%</small>
+    </div>
+    <div class="card">
+      <small>Overdue</small>
+      <p><strong>$7,310</strong></p>
+      <small class="error text-primary">↑ 31% — 6 invoices</small>
+    </div>
+    <div class="card">
+      <small>Collected rate</small>
+      <p><strong>94.2%</strong></p>
+      <progress value="94" max="100"></progress>
+    </div>
+  </div>
+
+  <div role="tablist" aria-label="Invoice status">
+    <button role="tab" aria-selected="true">All <span class="tag">248</span></button>
+    <button role="tab">Open <span class="tag">31</span></button>
+    <button role="tab">Overdue <span class="tag error">6</span></button>
+    <button role="tab">Draft</button>
+  </div>
+
+  <div class="flex between">
+    <div class="flex">
+      <label for="f-status" class="sr-only">Status</label>
+      <select id="f-status">
+        <option>Any status</option><option>Paid</option><option>Open</option><option>Overdue</option>
+      </select>
+      <label for="f-owner" class="sr-only">Owner</label>
+      <select id="f-owner">
+        <option>Any owner</option><option>Mojtaba B.</option><option>Dana R.</option>
+      </select>
+      <button class="ghost sm" popovertarget="filters" style="anchor-name:--filt">More filters</button>
+      <div popover id="filters" style="position-anchor:--filt">
+        <h4>More filters</h4>
+        <label for="p-min">Amount over</label>
+        <div class="field">
+          <span>$</span>
+          <input id="p-min" type="number" value="0">
+        </div>
+        <label><input type="checkbox"> Only my invoices</label>
+        <footer class="flex end">
+          <button class="secondary sm" popovertarget="filters" popovertargetaction="hide">Cancel</button>
+          <button class="sm">Apply</button>
+        </footer>
+      </div>
+    </div>
+    <label class="flex"><input type="checkbox" role="switch"> Show test data</label>
+  </div>
+
+  <figure>
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" aria-label="Select all"></th>
+          <th>Invoice</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th class="num">Amount</th>
+          <th>Due</th>
+          <th>Owner</th>
+          <th class="num">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2417"></td>
+          <td><a href="#main"><code>INV-2417</code></a></td>
+          <td><span class="flex"><span class="avatar" style="--size:1.5rem">AC</span><span class="truncate">Acme Constructions GmbH</span></span></td>
+          <td><span class="success text-primary"><i class="dot"></i>Paid</span></td>
+          <td class="num"><data value="12400">$12,400.00</data></td>
+          <td>Sep 12, 2026</td>
+          <td class="truncate">Mojtaba B.</td>
+          <td class="num"><button class="ghost sm" popovertarget="row-menu" style="anchor-name:--row" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2416"></td>
+          <td><a href="#main"><code>INV-2416</code></a></td>
+          <td><span class="flex"><span class="avatar" style="--size:1.5rem">BL</span><span class="truncate">Blaulicht Medientechnik AG</span></span></td>
+          <td><span class="warning text-primary"><i class="dot"></i>Open</span></td>
+          <td class="num"><data value="3980.5">$3,980.50</data></td>
+          <td>Sep 22, 2026</td>
+          <td class="truncate">Dana R.</td>
+          <td class="num"><button class="ghost sm" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2410"></td>
+          <td><a href="#main"><code>INV-2410</code></a></td>
+          <td><span class="flex"><span class="avatar" style="--size:1.5rem">KR</span><span class="truncate">Kranzler &amp; Söhne Handels KG</span></span></td>
+          <td><span class="error text-primary"><i class="dot"></i>Overdue 14d</span></td>
+          <td class="num"><data value="1120">$1,120.00</data></td>
+          <td>Sep 4, 2026</td>
+          <td class="truncate">Mojtaba B.</td>
+          <td class="num"><button class="ghost sm" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" aria-label="Select INV-2409"></td>
+          <td><a href="#main"><code>INV-2409</code></a></td>
+          <td><span class="flex"><span class="avatar" style="--size:1.5rem">OS</span><span class="truncate">Ostwind Logistik</span></span></td>
+          <td><span class="neutral text-primary"><i class="dot"></i>Draft</span></td>
+          <td class="num"><data value="640">$640.00</data></td>
+          <td>—</td>
+          <td class="truncate">Dana R.</td>
+          <td class="num"><button class="ghost sm" aria-label="Row actions">⋯</button></td>
+        </tr>
+        <tr>
+          <td colspan="8"><span aria-busy="true">Loading the next page of invoices…</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <figcaption>248 invoices · updated 2 minutes ago</figcaption>
+  </figure>
+
+  <menu popover id="row-menu" style="position-anchor:--row">
+    <li><button type="button">View invoice</button></li>
+    <li><button type="button">Send reminder</button></li>
+    <li><button type="button">Duplicate</button></li>
+    <li><hr></li>
+    <li><button type="button" class="error ghost">Void</button></li>
+  </menu>
+
+  <nav aria-label="Pagination">
+    <ol>
+      <li><a href="#main" class="button secondary sm">Previous</a></li>
+      <li><a href="#main" class="button secondary sm" aria-current="page">1</a></li>
+      <li><a href="#main" class="button secondary sm">2</a></li>
+      <li><a href="#main" class="button secondary sm">3</a></li>
+      <li><a href="#main" class="button secondary sm">21</a></li>
+      <li><a href="#main" class="button secondary sm">Next</a></li>
+    </ol>
+  </nav>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-8">
+      <article>
+        <header>
+          <h3>INV-2417 · Acme Constructions GmbH</h3>
+          <div class="flex">
+            <span class="tag success">Paid</span>
+            <button class="secondary sm">Download PDF</button>
+          </div>
+        </header>
+
+        <figure>
+        <table>
+          <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Unit</th><th class="num">Total</th></tr></thead>
+          <tbody>
+            <tr><td>Platform licence — Scale</td><td class="num">1</td><td class="num">$9,000.00</td><td class="num">$9,000.00</td></tr>
+            <tr><td>Additional seats</td><td class="num">14</td><td class="num">$180.00</td><td class="num">$2,520.00</td></tr>
+            <tr><td>Onboarding (one-off)</td><td class="num">1</td><td class="num">$880.00</td><td class="num">$880.00</td></tr>
+          </tbody>
+        </table>
+        </figure>
+
+        <dl>
+          <dt>Subtotal</dt><dd>$12,400.00</dd>
+          <dt>VAT (0% — reverse charge)</dt><dd>$0.00</dd>
+          <dt><strong>Total</strong></dt><dd><strong>$12,400.00</strong></dd>
+        </dl>
+
+        <footer>
+          <button class="ghost">Add note</button>
+          <button class="secondary">Refund</button>
+          <button id="reconcile-btn">Mark reconciled</button>
+        </footer>
+      </article>
+    </div>
+
+    <div class="col-4">
+      <form class="card" id="settings">
+        <header><h4>Reminder settings</h4></header>
+
+        <label for="s-name">Sender name</label>
+        <input id="s-name" value="Northwind Billing">
+
+        <label for="s-mail">Reply-to</label>
+        <input id="s-mail" type="email" value="not-an-email" required>
+        <small>Replies to reminders go here.</small>
+
+        <label for="s-days">Send first reminder</label>
+        <select id="s-days">
+          <option>On the due date</option>
+          <option selected>3 days after</option>
+          <option>7 days after</option>
+        </select>
+
+        <label for="s-amount">Only above</label>
+        <div class="field">
+          <span>$</span>
+          <input id="s-amount" type="number" value="250" inputmode="decimal">
+          <span>USD</span>
+        </div>
+
+        <fieldset>
+          <legend>Channels</legend>
+          <label><input type="checkbox" checked> Email</label>
+          <label><input type="checkbox"> Slack</label>
+          <label><input type="checkbox" role="switch" checked> Escalate to owner after 30 days</label>
+        </fieldset>
+
+        <label for="s-note">Default note</label>
+        <textarea id="s-note" rows="3">Kindly settle this invoice at your earliest convenience.</textarea>
+
+        <footer>
+          <button type="reset" class="ghost">Reset</button>
+          <button type="submit">Save</button>
+        </footer>
+      </form>
+
+      <article>
+        <header><h4>Activity</h4></header>
+        <ul data-empty="Nothing yet.">
+          <li><small class="text-muted">14:02</small> — Reminder sent</li>
+          <li><small class="text-muted">11:40</small> — Payment received, $12,400.00</li>
+          <li><small class="text-muted">Sep 9</small> — Invoice issued</li>
+        </ul>
+      </article>
+
+      <article>
+        <header><h4>Disputes</h4></header>
+        <ul data-empty="No disputes on this account."></ul>
+      </article>
+    </div>
+  </div>
+
+  <details>
+    <summary>Danger zone</summary>
+    <p>Voiding an invoice cannot be undone and notifies the customer.</p>
+    <button class="error">Void invoice</button>
+  </details>
+
+</main>
+
+<footer>
+  <div class="flex between">
+    <small>Northwind Billing · built with leicht</small>
+    <small><a href="#main">Docs</a> · <a href="#main">Status</a></small>
+  </div>
+</footer>
+
+<dialog id="new-invoice">
+  <h3>New invoice</h3>
+  <label for="d-cust">Customer</label>
+  <select id="d-cust"><option>Acme Constructions GmbH</option><option>Ostwind Logistik</option></select>
+  <label for="d-amt">Amount</label>
+  <div class="field">
+    <span>$</span>
+    <input id="d-amt" type="number" value="1000">
+  </div>
+  <footer>
+    <button class="secondary" id="dialog-cancel">Cancel</button>
+    <button>Create</button>
+  </footer>
+</dialog>
+
+<output>
+  <div class="alert success">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg>
+    <p>Invoice INV-2417 marked as reconciled.</p>
+  </div>
+</output>
+
+<script>
+  // Behaviour only — no styling. A tablist needs a click handler; the rest is the platform.
+  document.querySelectorAll('[role=tab]').forEach(t => t.onclick = () => {
+    document.querySelectorAll('[role=tab]').forEach(o => o.setAttribute('aria-selected', o === t));
+  });
+  document.getElementById('theme-toggle').onclick = () => {
+    const r = document.documentElement;
+    r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark';
+  };
+  const dlg = document.getElementById('new-invoice');
+  document.getElementById('new-invoice-btn').onclick = () => dlg.showModal();
+  document.getElementById('dialog-cancel').onclick = () => dlg.close();
+  const save = document.getElementById('reconcile-btn');
+  save.onclick = () => {
+    save.setAttribute('aria-busy', 'true');
+    setTimeout(() => save.removeAttribute('aria-busy'), 1600);
+  };
+</script>
+</body>
+</html>

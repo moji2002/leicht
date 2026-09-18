@@ -82,3 +82,20 @@ test('the field survives dark mode and RTL', async ({ page }) => {
   // in RTL the $ prefix sits to the right of the input: logical properties throughout
   expect(prefix.x).toBeGreaterThan(input.x);
 });
+
+test('a control in a .flex row sizes to its content, not 100%', async ({ page }) => {
+  // select/input are display:block; inline-size:100%, which makes each one claim a whole row
+  // inside a toolbar. Without this a filter bar needs inline-size:auto by hand.
+  await page.goto('/test/fixtures/chrome.html');
+  const w = await page.evaluate(() => {
+    const row = document.getElementById('flexrow');
+    const sel = row.querySelector('select');
+    const btn = row.querySelector('button');
+    const s = sel.getBoundingClientRect(), b = btn.getBoundingClientRect();
+    // side by side, not stacked. Comparing tops would fail on .flex's align-items: center,
+    // which centres items of different heights at different top offsets.
+    return { rowW: row.offsetWidth, selW: sel.offsetWidth, sideBySide: b.left >= s.right - 1 };
+  });
+  expect(w.selW).toBeLessThan(w.rowW * 0.6);
+  expect(w.sideBySide).toBe(true);
+});

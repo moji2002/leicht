@@ -1,6 +1,20 @@
 # What a production UI needs that leicht doesn't have
 
-Method: I built a real SaaS admin console — `lab-console.html` in the repo root — using only
+> **Status: closed in 0.2, except where noted.** This document is the evidence that produced the
+> 0.2 application layer. Its findings were implemented per
+> `docs/superpowers/specs/2026-09-18-leicht-app-layer-design.md`, and the console that produced
+> them now renders with **no custom CSS at all** — see `test/console.html`, with
+> `test/e2e/console.spec.js` asserting there is no `<style>` block and no inline property.
+>
+> What 0.2 closed: §1.1 (`.row`), §1.2 (`nav > ol`), §1.3 (`[popover]`), §2 (the `body >` coupling,
+> via `body:has(> aside)` built from body's own children), §3 (`--l-warning`, `--l-focus`), §4
+> (tables, tabs, avatar, dot, sidebar nav, `.field`, skeletons, toasts, breadcrumbs, pagination,
+> sizes, dense `<dl>`), §5 (spacing utilities, truncation, `article > header`, field help text).
+>
+> **Still open after 0.2** is at the bottom of this file.
+
+
+Method: I built a real SaaS admin console — now `test/console.html` — using only
 leicht's vocabulary, and wrote custom CSS *only* where the library could not express the thing.
 Every hand-written rule is tagged `GAP-n` in that file's `<style>` block. Sidebar, sticky
 toolbar, breadcrumb, KPI cards, tabs, filter bar, an 8-column data table, row menus, pagination,
@@ -131,3 +145,43 @@ There is also no documented way to opt a page out of `max-inline-size: var(--l-w
   first try in a dense layout.
 - The container query on `.col-*` is genuinely better than a media query: the `col-4` settings
   form reflows on its own width, in a sidebar, with no breakpoint bookkeeping.
+
+
+---
+
+## Still open after 0.2
+
+Found while building the acceptance test. None needs custom CSS to *work around* — they are
+either a markup discipline the docs must teach, or a deliberate non-goal.
+
+### A big number has no styling of its own
+
+A KPI tile's value is the one thing on the page that wants to be large, tabular and optically
+tight. `<strong>` inside a `.card` renders at body size, so the four tiles in
+`test/console.html` read as labels rather than figures. The spec's non-goals exclude a typography
+scale, and inventing one for a single component would be worse — but the consequence is real, and
+a `.stat` (or a documented `--l-stat-size`) is the obvious candidate if a second use case appears.
+
+### A breadcrumb has no separators
+
+`nav > ol` is now reset (§1.2), so a breadcrumb is a clean inline row — but "Workspace Billing
+Invoices" with nothing between the items is ambiguous. The custom rule in the 0.1.1 console was
+`li + li::before { content: "/" }`. Adding that to the library would impose a separator character
+on every `nav > ol`, including pagination, which is why it was not done. Worth revisiting with a
+narrower hook.
+
+### A bare `<table>` still overflows its container, silently
+
+`figure:has(> table)` gives a table a scrollport, but only if you remember the `<figure>`. A bare
+`<table>` in a narrow container still pushes the page sideways — this bit the acceptance test
+itself: the invoice line-items table overflowed the viewport by 39px at 375px until it was
+wrapped. The library cannot fix this without making every table a scroll container, so it is a
+documentation duty: **a data table goes in a figure.**
+
+### `min-inline-size: max(12rem, anchor-size(width))` collapses without an anchor
+
+Pre-existing, not a 0.2 regression, and filed separately. In `src/edge.css` the anchored menu
+width is invalid-at-computed-value-time when the popover has no anchor, so the whole declaration
+is dropped and the 12rem floor with it. Measured on the docs site, whose menus are opened with
+`commandfor` and have no `anchor-name`: `#skin-menu` computes `min-inline-size: 0px` and renders
+98px wide. A menu that *does* have an anchor correctly computes `192px`.

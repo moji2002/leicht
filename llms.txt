@@ -1,7 +1,7 @@
 # leicht
 
 > A tiny classless-first CSS library in modern CSS. Link one stylesheet, write ordinary HTML,
-> and the page is styled. 5.6 kB gzipped, no build step, no dependencies, no !important.
+> and the page is styled. 6.8 kB gzipped, no build step, no dependencies, no !important.
 
 Install: `npm i leicht` — or link `dist/leicht.min.css` directly.
 Optional skins: `dist/leicht-themes.min.css` (1.6 kB, six looks via `data-skin`).
@@ -11,13 +11,30 @@ Optional skins: `dist/leicht-themes.min.css` (1.6 kB, six looks via `data-skin`)
 - Semantic HTML is styled with no classes: headings, tables, forms, `<nav>`, `<article>` as a
   card, `<dialog>` as a modal, `[popover]` menus, `popover="hint"` tooltips, `<progress>`,
   `<meter>`, and `role="switch"` checkboxes.
+- An application layer, also without classes, keyed on the markup that makes it accessible:
+  `<aside>` as a child of `<body>` is an app shell (add `popover` to it for an off-canvas drawer
+  below 60rem, opened by a `popovertarget` button with no JavaScript); `<figure>` around a
+  `<table>` is a scrolling data table with `<figcaption>` as its caption row; `aside nav` is a
+  vertical sidebar nav; `[role=tablist]` with `[role=tab][aria-selected]` is tabs; `<output>` as
+  a child of `<body>` is a toast stack; `[aria-busy=true]` is a skeleton, or a spinner on a
+  button; `<nav aria-label>` around an `<ol>` is pagination; `<dl>` is a key/value grid;
+  `<td class="num">` or `<td><data value>` is a right-aligned numeric cell.
 - A small set of classes covers what HTML has no element for: `.row`/`.col-N`, `.card`,
-  `.button` + variants, `.alert`, `.group`, `.tag`, `.carousel`, `.glass`, `.liquid`, utilities.
+  `.button` + variants (`.secondary`, `.outline`, `.ghost`, `.error`, `.success`, `.warning`,
+  `.neutral`), `.sm`/`.lg` sizes, `.alert`, `.group`, `.tag`, `.field` (an input row that can
+  hold a prefix, icon or unit suffix), `.avatar`, `.dot`, `.carousel`, `.glass`, `.liquid`, and
+  utilities including `.between`, `.end` and `.truncate`.
 - Everything ships inside `@layer leicht.base, leicht.components, leicht.utilities`, so unlayered
   author CSS always wins — overriding never needs `!important`.
 - All styling is tokens (`--l-*`). `--l-primary` takes a brand colour; `--l-hue` re-tints
   neutrals and accent together. The palette is OKLCH with fixed lightness, so a hue change cannot
-  break contrast.
+  break contrast — `--l-primary`, `--l-error`, `--l-success` and `--l-warning` all measure
+  between 4.8:1 and 5.1:1 against the page, checked by `test/contrast.test.mjs`.
+- `--l-space` is a single density knob: layout spacing derives from it through
+  `--l-space-xs/sm/md/lg/xl`, so one change compacts or loosens every component. Component
+  interiors stay in `em`, so they scale with their own font size — which is why `.sm`/`.lg` need
+  only set `font-size`. Other application tokens: `--l-aside`, `--l-table-max`, `--l-focus`, and
+  `--l-width: none` to opt out of the 72rem measure.
 - Dark mode is `light-dark()` plus `color-scheme` — no JavaScript. `data-theme` forces it;
   `data-skin` selects a skin; the two compose.
 

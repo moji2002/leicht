@@ -174,6 +174,7 @@
         <li><a href="#card">Card</a></li>
         <li><a href="#overlays">Dialog, menu &amp; tooltip</a></li>
         <li><a href="#tag">Tag</a></li>
+        <li><a href="#app">App layer</a></li>
         <li><a href="#components">Alerts &amp; switches</a></li>
         <li><a href="#carousel">Carousel</a></li>
         <li><a href="#rtl">RTL</a></li>
@@ -430,6 +431,135 @@
           <tr><td><code>.container</code></td><td>Centred, max-width, query container</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section id="app">
+      <h2>An application, still without classes</h2>
+      <p>Each of these keys off the markup that already makes it accessible, so you write the
+        correct HTML and the styling follows. The <a href="https://github.com/moji2002/leicht/blob/main/test/console.html">acceptance test</a>
+        is a full billing console written this way, with no custom CSS at all.</p>
+
+      <h3>App shell</h3>
+      <p>An <code>&lt;aside&gt;</code> as a direct child of <code>&lt;body&gt;</code> turns the page
+        into a shell: sidebar column plus content, with the glass toolbar and page gutters
+        unchanged. Give the <code>&lt;aside&gt;</code> a <code>popover</code> attribute and point a
+        button at it, and below 60rem the same element becomes an off-canvas drawer that the
+        browser opens, light-dismisses and animates — no JavaScript. <code>--l-aside</code> sets
+        the column width.</p>
+      <pre><code>&lt;body&gt;
+  &lt;aside id="nav" popover&gt;
+    &lt;nav&gt;&lt;ul&gt;&lt;li&gt;&lt;a href="#" aria-current="page"&gt;Overview&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;
+  &lt;/aside&gt;
+  &lt;header&gt;
+    &lt;nav&gt;&lt;button popovertarget="nav" class="ghost hide-lg"&gt;&#9776;&lt;/button&gt;&lt;/nav&gt;
+  &lt;/header&gt;
+  &lt;main&gt;…&lt;/main&gt;
+&lt;/body&gt;</code></pre>
+
+      <h3>Data table</h3>
+      <p>Wrap a <code>&lt;table&gt;</code> in a <code>&lt;figure&gt;</code> — semantic HTML's own
+        table wrapper. The figure becomes the scrollport, so a wide table scrolls inside its own
+        frame instead of pushing the page sideways, and <code>&lt;figcaption&gt;</code> becomes the
+        caption row. Set <code>--l-table-max</code> to cap the height and the
+        <code>&lt;thead&gt;</code> sticks. A cell with <code>.num</code> or a
+        <code>&lt;data value&gt;</code> child aligns to the end.</p>
+      <div data-demo>
+        <figure>
+          <table>
+            <thead><tr><th>Invoice</th><th>Customer</th><th>Status</th><th class="num">Amount</th></tr></thead>
+            <tbody>
+              <tr><td><code>INV-2417</code></td><td>Acme Constructions GmbH</td><td><span class="success text-primary"><i class="dot"></i>Paid</span></td><td><data value="12400">$12,400.00</data></td></tr>
+              <tr><td><code>INV-2416</code></td><td>Blaulicht Medientechnik AG</td><td><span class="warning text-primary"><i class="dot"></i>Open</span></td><td><data value="3980.5">$3,980.50</data></td></tr>
+              <tr><td><code>INV-2410</code></td><td>Kranzler &amp; Söhne KG</td><td><span class="error text-primary"><i class="dot"></i>Overdue</span></td><td><data value="1120">$1,120.00</data></td></tr>
+            </tbody>
+          </table>
+          <figcaption>248 invoices · updated 2 minutes ago</figcaption>
+        </figure>
+      </div>
+
+      <h3>Tabs</h3>
+      <p>A <code>[role=tablist]</code> of buttons, with <code>aria-selected</code> marking the
+        current one. The ARIA that makes them announce correctly is the hook that styles them.</p>
+      <div data-demo>
+        <div role="tablist" aria-label="Invoice status">
+          <button role="tab" aria-selected="true">All <span class="tag">248</span></button>
+          <button role="tab">Open <span class="tag">31</span></button>
+          <button role="tab">Overdue <span class="tag error">6</span></button>
+          <button role="tab">Draft</button>
+        </div>
+      </div>
+
+      <h3>Loading states</h3>
+      <p><code>aria-busy="true"</code> draws a shimmering skeleton — or, on a
+        <code>&lt;button&gt;</code>, a spinner and a disabled state. Both stop under
+        <code>prefers-reduced-motion</code>.</p>
+      <div data-demo>
+        <p><span aria-busy="true">Loading the next page of invoices…</span></p>
+        <button aria-busy="true">Saving</button>
+      </div>
+
+      <h3>Input adornments</h3>
+      <p>An <code>&lt;input&gt;</code> fills its line, so a currency prefix or a unit suffix has
+        nowhere to sit. <code>.field</code> is the row they share: it carries the border and the
+        focus ring, and the input inside carries neither.</p>
+      <div data-demo>
+        <label for="d-amount">Only above</label>
+        <div class="field">
+          <span>$</span>
+          <input id="d-amount" type="number" value="250">
+          <span>USD</span>
+        </div>
+      </div>
+
+      <h3>Key and value</h3>
+      <p>A <code>&lt;dl&gt;</code> is a two-column grid: totals, metadata, spec sheets.</p>
+      <div data-demo>
+        <dl>
+          <dt>Subtotal</dt><dd>$12,400.00</dd>
+          <dt>VAT (0% — reverse charge)</dt><dd>$0.00</dd>
+          <dt><strong>Total</strong></dt><dd><strong>$12,400.00</strong></dd>
+        </dl>
+      </div>
+
+      <h3>Toasts and pagination</h3>
+      <p>An <code>&lt;output&gt;</code> as a direct child of <code>&lt;body&gt;</code> becomes a
+        toast stack pinned to the corner — it is already a live region, so screen readers announce
+        it. Pagination is a labelled <code>&lt;nav&gt;</code> around an <code>&lt;ol&gt;</code>.</p>
+      <div data-demo>
+        <nav aria-label="Pagination">
+          <ol>
+            <li><a href="#app" class="button secondary sm">Previous</a></li>
+            <li><a href="#app" class="button secondary sm" aria-current="page">1</a></li>
+            <li><a href="#app" class="button secondary sm">2</a></li>
+            <li><a href="#app" class="button secondary sm">3</a></li>
+            <li><a href="#app" class="button secondary sm">Next</a></li>
+          </ol>
+        </nav>
+      </div>
+
+      <h3>Avatars, dots and sizes</h3>
+      <p><code>.avatar</code> takes <code>--size</code>; <code>.dot</code> inherits the variant
+        colour; <code>.sm</code> and <code>.lg</code> set only <code>font-size</code>, because
+        control padding is <code>em</code> — one declaration resizes the whole control.</p>
+      <div data-demo>
+        <div class="flex">
+          <span class="avatar">MB</span>
+          <span class="avatar" style="--size:1.5rem">AC</span>
+          <span class="success text-primary"><i class="dot"></i>Paid</span>
+          <span class="neutral text-primary"><i class="dot"></i>Draft</span>
+          <button class="sm secondary">Small</button>
+          <button>Default</button>
+          <button class="lg">Large</button>
+        </div>
+      </div>
+
+      <h3>Density</h3>
+      <p><code>--l-space</code> is one knob for the whole UI. Layout spacing derives from it, so
+        changing it compacts or loosens cards, dialogs, alerts, the sidebar and the toast stack
+        together — while component interiors stay in <code>em</code> and scale with their own font
+        size instead.</p>
+      <pre><code>:root { --l-space: .75rem }   /* denser */
+:root { --l-space: 1.25rem }  /* roomier */</code></pre>
     </section>
 
     <section id="components">

@@ -7,8 +7,11 @@ for (const path of ['/index.html', '/skins.html']) {
     test(`${path} ${theme} is visually unchanged`, async ({ page }) => {
       await page.goto(path);
       await page.evaluate(t => { document.documentElement.dataset.theme = t; }, theme);
+      // The docs site loads Google Fonts, and a late swap changes text metrics — the mobile page
+      // measured 24428px on one run and 24383px on the next until this wait was added.
+      await page.evaluate(() => document.fonts.ready);
       // the scroll-driven toolbar animation must settle before the shot
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(400);
       await expect(page).toHaveScreenshot(`${path.replace(/\W/g, '')}-${theme}.png`, {
         fullPage: true,
         animations: 'disabled',

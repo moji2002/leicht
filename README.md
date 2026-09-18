@@ -1,11 +1,11 @@
 # leicht
 
 [![npm](https://img.shields.io/npm/v/leicht?color=0a66c2)](https://www.npmjs.com/package/leicht)
-[![gzip size](https://img.shields.io/badge/gzip-5.6%20kB-0a66c2)](https://github.com/moji2002/leicht)
+[![gzip size](https://img.shields.io/badge/gzip-6.8%20kB-0a66c2)](https://github.com/moji2002/leicht)
 [![license](https://img.shields.io/npm/l/leicht?color=0a66c2)](./LICENSE)
 
 A tiny classless-first CSS library, written in modern CSS. Link one file, write ordinary HTML,
-and it's styled. **5.6 kB gzipped**, no build step, no dependencies.
+and it's styled. **6.8 kB gzipped**, no build step, no dependencies.
 
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leicht@0.1/dist/leicht.min.css">
@@ -45,6 +45,27 @@ fieldsets, `<nav>`, `<article>` as a card, `<dialog>` as a modal, `[popover]` me
 their button, `popover="hint"` tooltips, `<progress>`, `<meter>`, and a checkbox with
 `role="switch"` as a real toggle.
 
+### And a whole application, still without a class
+
+Each of these keys off the markup that already makes it accessible, so you write the correct HTML
+and the styling follows:
+
+| Markup | What you get |
+|---|---|
+| `<aside>` as a child of `<body>` | An app shell: sidebar column plus content. Add `popover` to the `<aside>` and a `popovertarget` button, and below 60rem it becomes an off-canvas drawer the browser opens, light-dismisses and animates — no JavaScript. |
+| `<figure>` around a `<table>` | A data table: framed, horizontally scrolling inside its own box instead of pushing the page sideways, with `<figcaption>` as the caption row. Set `--l-table-max` to cap the height and the `<thead>` sticks. |
+| `<aside>` `<nav>` | A vertical sidebar nav, with `[aria-current]` marking the page. |
+| `[role=tablist]` + `[role=tab][aria-selected]` | Tabs with an indicator. |
+| `<output>` as a child of `<body>` | A toast stack, pinned to the corner. It is already a live region. |
+| `[aria-busy=true]` | A shimmering skeleton — or, on a `<button>`, a spinner and a disabled state. |
+| `<nav aria-label="…">` around an `<ol>` | Pagination, with `[aria-current]` marking the page. |
+| `<dl>` | A two-column key/value grid: invoice totals, metadata, spec sheets. |
+| `<td class="num">` or `<td><data value="…">` | A right-aligned numeric cell. |
+
+The [acceptance test](./test/console.html) is a full billing console — shell, data table, tabs,
+row menus, a modal, a filter panel, toasts, a settings form — written with **no custom CSS at
+all**. A test asserts it stays that way.
+
 ## And a few classes when you need them
 
 | | |
@@ -55,7 +76,11 @@ their button, `popover="hint"` tooltips, `<progress>`, `<meter>`, and a checkbox
 | `.alert` | callout; takes the same variants |
 | `.group` | join buttons into one segmented bar |
 | `.tag`, `.carousel`, `.glass`, `.liquid` | badge, scroll-snap list with dots, and the two glass materials |
-| `.flex`, `.stack`, `.text-center`, `.text-muted`, `.hide-sm`, `.sr-only`, `.container` | utilities |
+| `.warning`, `.neutral` | the third and fourth semantic states, alongside `.error` and `.success` |
+| `.sm`, `.lg` | control sizes. They set only `font-size`, because control padding is `em` |
+| `.field` | a row an `<input>` can share with a `$` prefix, a search icon or a unit suffix |
+| `.avatar` (takes `--size`), `.dot` | initials or an image in a round box, and a status dot that inherits the variant colour |
+| `.flex`, `.stack`, `.between`, `.end`, `.truncate`, `.text-center`, `.text-muted`, `.hide-sm`, `.sr-only`, `.container` | utilities |
 
 ## Theming
 
@@ -68,8 +93,19 @@ never need `!important`.
   --l-hue: 150;           /* or re-tint neutrals and accent together */
   --l-radius: .25rem;
   --l-corner: round;      /* opt out of squircles */
+  --l-space: .75rem;      /* one knob for density: every component tightens */
 }
 ```
+
+`--l-space` is the density control. Layout spacing derives from it through
+`--l-space-xs/sm/md/lg/xl`, so changing it compacts or loosens cards, dialogs, alerts, the
+sidebar and the toast stack together. Component interiors — buttons, tags, table cells, form
+controls — stay in `em` on purpose, so they scale with their own font size instead. That is what
+lets `.sm` and `.lg` resize a whole control with one declaration.
+
+The other application-layer tokens: `--l-aside` (sidebar width, `15rem`), `--l-table-max` (table
+height cap, `none`), `--l-warning` (the third state), `--l-focus` (the focus ring, so a skin can
+re-point it), and `--l-width: none` to opt a page out of the `72rem` measure entirely.
 
 Because the palette is OKLCH and holds lightness fixed, changing `--l-hue` measures the same
 contrast at every hue — 4.86:1 against the page. A raw brand colour is the one that can fail:

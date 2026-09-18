@@ -1,4 +1,4 @@
-/*! leicht-themes v0.1.0 — optional skins. Link after leicht.css, set <html data-skin="…">. MIT
+/*! leicht-themes v0.2.0 — optional skins. Link after leicht.css, set <html data-skin="…">. MIT
     Each skin is mostly token overrides; light/dark still works through data-theme. */
 @layer leicht.components {
 

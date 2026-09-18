@@ -8,7 +8,7 @@ A tiny classless-first CSS library, written in modern CSS. Link one file, write 
 and it's styled. **6.8 kB gzipped**, no build step, no dependencies.
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leicht@0.1/dist/leicht.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leicht@0.2/dist/leicht.min.css">
 ```
 
 ```bash

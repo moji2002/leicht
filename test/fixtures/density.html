@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>density fixture</title>
+<link rel="stylesheet" href="../../dist/leicht.css">
+</head>
+<body>
+<header><nav><strong>Density</strong><button class="secondary">Action</button></nav></header>
+
+<main>
+  <h1>Every component that owns spacing</h1>
+
+  <article id="card">
+    <header><h3>Card</h3><button class="ghost">Edit</button></header>
+    <p>Body copy.</p>
+    <footer><button>Save</button></footer>
+  </article>
+
+  <div class="alert" id="alert"><p>An alert.</p></div>
+
+  <details id="details"><summary>Details</summary><p>Open content.</p></details>
+
+  <div class="row" id="row">
+    <div class="card">one</div>
+    <div class="card">two</div>
+  </div>
+
+  <h2 id="heading-after-row">A heading after a component</h2>
+
+  <label for="hinted">Field with a hint</label>
+  <input id="hinted">
+  <small id="hint">The hint that must not collide with the next label.</small>
+  <label for="second">The next label</label>
+  <input id="second">
+
+  <hr id="rule">
+
+  <button popovertarget="menu" id="menu-btn" style="anchor-name:--mb">Menu</button>
+  <menu popover id="menu" style="position-anchor:--mb">
+    <li><button type="button">One</button></li>
+  </menu>
+
+  <button onclick="document.getElementById('dlg').showModal()" id="dlg-btn">Dialog</button>
+  <dialog id="dlg">
+    <h3>Dialog</h3>
+    <p>Content.</p>
+    <footer><button onclick="this.closest('dialog').close()">Close</button></footer>
+  </dialog>
+</main>
+
+<footer><small>footer</small></footer>
+</body>
+</html>
